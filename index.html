@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Dodge the Blocks — Living Worlds</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07121f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#07121f;--panel:#0c2033;--line:#24506a;--cyan:#42e8f5;--text:#e8f7ff;--muted:#a7c7d9;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#173c53 0,#07121f 60%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#06111ee8}h1{margin:0;font-size:clamp(22px,3vw,36px);letter-spacing:.5px}header p{margin:4px 0 0;color:var(--muted)}.brand{display:flex;align-items:center;gap:12px}.logo{font-size:38px}main{max-width:1450px;margin:auto;padding:18px;display:grid;grid-template-columns:245px minmax(300px,1fr) 235px;gap:14px}.panel{background:#0a1c2de8;border:1px solid var(--line);border-radius:15px;padding:12px;box-shadow:0 8px 28px #0003}.panel h2{font-size:16px;margin:2px 0 12px}.worlds{display:grid;gap:9px;max-height:68vh;overflow:auto;padding-right:3px}.world{border:1px solid #315a70;border-radius:10px;padding:11px;cursor:pointer;background:#0c2639;color:var(--text);text-align:left;display:flex;align-items:center;gap:9px}.world span:first-child{font-size:25px}.world small{display:block;color:var(--muted);font-size:11px}.world.active{border:2px solid var(--cyan);box-shadow:0 0 12px #42e8f544}.gamewrap{min-width:0}.hud{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:#091a2b;font-size:13px}.stage{position:relative;border:2px solid var(--cyan);border-radius:15px;overflow:hidden;background:#173d50;box-shadow:0 0 20px #42e8f522}.stage canvas{display:block;object-fit:contain;width:100%;height:min(65vh,570px);min-height:360px}.overlay{position:absolute;inset:0;background:#04101ab8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}.overlay h2{font-size:clamp(26px,4vw,42px);margin:0 0 8px}.overlay p{max-width:370px;color:#d2e9f7;line-height:1.5}.hidden{display:none!important}button,select{font:inherit;color:var(--text);background:#10324a;border:1px solid #39718b;border-radius:9px;padding:10px 12px;cursor:pointer}button:hover{filter:brightness(1.18)}button.primary{background:linear-gradient(110deg,#42e8f5,#21b7df);color:#03151e;font-weight:800;border:0}.controls{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}.settings{display:grid;gap:13px}.setting label{display:flex;justify-content:space-between;gap:6px;font-size:13px}.setting input{width:100%;accent-color:var(--cyan)}.setting small{color:var(--muted)}.mode{display:grid;gap:7px}.mode button{text-align:left}.mode button.active{border:2px solid var(--cyan)}.info{color:var(--muted);font-size:12px;line-height:1.55;margin-top:14px}.status{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:12px}.mobile-controls{display:none;gap:12px;justify-content:center;margin-top:10px;position:sticky;bottom:8px;z-index:5}.mobile-controls button{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.mobile-controls button{width:80px;font-size:20px;touch-action:manipulation}footer{text-align:center;color:var(--muted);font-size:12px;padding:14px;border-top:1px solid var(--line)}
+@media(max-width:900px){main{grid-template-columns:1fr 1fr}.gamewrap{grid-column:1/-1;grid-row:1}.left{grid-column:1}.right{grid-column:2}.stage canvas{height:55vh}}
+@media(max-width:560px){main{grid-template-columns:1fr;padding:8px;gap:10px}.gamewrap,.left,.right{grid-column:1}.left{grid-row:2}.right{grid-row:3}.stage canvas{min-height:300px;height:54svh;max-height:520px;touch-action:none}.panel{padding:10px}.worlds{max-height:none}.mobile-controls button{width:min(30vw,120px);height:58px;font-size:25px;border-radius:15px}header{padding:14px}.mobile-controls{display:flex}.worlds{grid-template-columns:1fr 1fr}.world{padding:8px}}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}button{touch-action:manipulation}.stage:fullscreen{background:#000}.stage:fullscreen canvas,.stage:-webkit-full-screen canvas{height:100vh;width:100%}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">🟩</div><div><h1>Dodge the Blocks</h1><p>Explore worlds · Survive · Beat your best</p></div></div><div><span class="pill">♫ Original ambient soundtrack</span></div></header>
+<main>
+<aside class="panel left"><h2>🌍 Select World</h2><div class="worlds">
+<button class="world active" data-world="forest"><span>🌲</span><span>Forest<small>Wind gusts · Fireflies</small></span></button>
+<button class="world" data-world="desert"><span>🏜️</span><span>Desert<small>Sandstorms · Heat</small></span></button>
+<button class="world" data-world="ice"><span>❄️</span><span>Ice World<small>Slippery ice · Blizzards</small></span></button>
+<button class="world" data-world="galaxy"><span>🌌</span><span>Galaxy<small>Low gravity</small></span></button>
+<button class="world" data-world="jungle"><span>🌴</span><span>Jungle<small>Vines · Ferns · Ancient trees</small></span></button>
+<button class="world" data-world="ocean"><span>🌊</span><span>Ocean<small>Currents · Coral</small></span></button>
+<button class="world" data-world="mushroom"><span>🍄</span><span>Mushroom Grove<small>Giant fungi · Spores</small></span></button>
+<button class="world" data-world="volcano"><span>🌋</span><span>Volcanic Lands<small>Lava geysers · Ash</small></span></button>
+<button class="world" data-world="cherry"><span>🌸</span><span>Cherry Blossom<small>Petals · Pink trees</small></span></button>
+<button class="world" data-world="savanna"><span>🦒</span><span>Savanna<small>Acacia trees · Tall grass</small></span></button>
+<button class="world" data-world="rain"><span>🌧️</span><span>Rainforest<small>Storms · Lightning</small></span></button>
+</div><p class="info">Choose a world before starting. Each one has its own colors and atmosphere.</p></aside>
+<section class="gamewrap"><div class="hud"><span class="pill">SCORE <b id="score">0</b></span><span class="pill">BEST <b id="best">0</b></span><span class="pill">TIME <b id="time">0.0</b>s</span><span class="pill" id="worldName">🌲 Forest</span><span class="pill" id="buffs" style="display:none"></span><span class="pill">🪙 <b id="coins">0</b></span><span class="pill">🔥 x<b id="combo">1</b></span></div>
+<div class="stage"><canvas id="game" width="800" height="600" aria-label="Dodge the falling blocks game"></canvas><div class="overlay" id="overlay"><h2 id="overlayTitle">Dodge the Blocks</h2><p id="overlayText">Move left and right to avoid falling blocks. Survive as long as you can, and collect ❤️ extra lives, 🛡️ shields and ⏳ slow-motion, and listen to the calm ambient soundtrack.</p><button class="primary" id="startBtn">▶ Start Game</button><p style="font-size:12px">Keyboard: ← → or A / D · Space to pause</p></div></div>
+<div class="controls"><button id="pauseBtn">⏸ Pause</button><button id="dashBtn">⚡ Dash</button><button id="fsBtn">⛶ Fullscreen</button><button id="restartBtn">↻ Restart</button></div><div class="mobile-controls"><button id="leftBtn">◀</button><button id="rightBtn">▶</button><button id="dashBtn2">⚡</button></div><div class="status"><span>❤️ Lives: <b id="lives">3</b></span><span id="modeLabel">Mode: Classic</span><span id="message">Ready when you are.</span></div></section>
+<aside class="panel right"><h2>⚡ Game Mode</h2><div class="mode"><button class="active" data-mode="classic">🎯 Classic<small class="info">Balanced speed</small></button><button data-mode="rush">⚡ Speed Rush<small class="info">Faster obstacles · double score</small></button><button data-mode="zen">🪷 Zen<small class="info">No collisions · relax</small></button><button data-mode="hardcore">💀 Hardcore<small class="info">One life · faster · double score</small></button><button data-mode="attack">⏱ Score Attack<small class="info">60 seconds · go big</small></button><button data-mode="journey">🧭 Journey<small class="info">New world every 45s</small></button></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h2>♫ Audio Settings</h2><div class="settings"><div class="setting"><label for="musicVol">Background music <span id="musicVal">35%</span></label><input id="musicVol" type="range" min="0" max="100" value="35"><small>Gentle piano-like notes and warm ambient tones</small></div><button id="musicBtn">♫ Music: On</button><div class="setting"><label for="sfxVol">Sound effects <span id="sfxVal">65%</span></label><input id="sfxVol" type="range" min="0" max="100" value="65"><small>Movement, collisions, and high-score chimes</small></div><button id="sfxBtn">🔊 SFX: On</button></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h2>🎨 Cube Skins</h2><div class="mode" id="skins"></div><p class="info" id="achInfo"></p><button id="rmBtn">🌀 Screen shake: On</button><p class="info">Keys: ← → move · Shift dash · Space pause · Gamepad supported</p><p class="info">Audio starts after you press Start, because browsers require a user interaction before playing sound.</p></aside>
+</main><footer>Every run is a new adventure · Real recorded ambience matched to each biome.</footer>
+<script>
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+// ---------- AUDIO: original synthesized ambient music and sound effects ----------
+let audioCtx=null, master=null, musicBus=null, sfxBus=null, ambienceBus=null, musicTimer=null, musicIndex=0, musicOn=true, sfxOn=true;
+let ambienceNodes=[], ambienceTimers=[], ambienceWorld=null;
+const melody=[[523.25,0.72],[659.25,0.95],[783.99,1.25],[659.25,0.9],[587.33,1.1],[523.25,1.35],[392,1.25],[523.25,1.1],[659.25,1.5],[587.33,0.9],[493.88,1.15],[392,1.7],[440,1.05],[523.25,1.1],[659.25,1.6],[587.33,1.0],[523.25,1.15],[440,1.8]];
+const chordSets=[[130.81,164.81,196],[110,130.81,164.81],[146.83,174.61,220],[98,123.47,146.83]];
+function initAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();master=audioCtx.createGain();musicBus=audioCtx.createGain();sfxBus=audioCtx.createGain();ambienceBus=audioCtx.createGain();master.gain.value=.78;musicBus.gain.value=Number(musicVol.value)/100;sfxBus.gain.value=Number(sfxVol.value)/100;ambienceBus.gain.value=.52;musicBus.connect(master);sfxBus.connect(master);ambienceBus.connect(master);master.connect(audioCtx.destination)}if(audioCtx.state==='suspended')audioCtx.resume()}
+function soundTone(freq,dur,wave,vol,bus,endFreq=null){if(!audioCtx)return;const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=wave;o.frequency.setValueAtTime(freq,t);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+.04)}
+function playMusicNote(freq,dur){if(!audioCtx||!musicOn)return;soundTone(freq,dur,'triangle',.075,musicBus);soundTone(freq*2,dur*.48,'sine',.018,musicBus);soundTone(freq*.5,dur*.65,'sine',.018,musicBus)}
+function playChord(){if(!audioCtx||!musicOn)return;const chord=chordSets[Math.floor(musicIndex/4)%chordSets.length];chord.forEach((f,i)=>soundTone(f,4.3,'sine',.018/(i+1),musicBus))}
+function startMusic(){initAudio();stopMusic();if(!musicOn)return;musicIndex=0;playChord();function step(){if(!musicOn||!audioCtx)return;const [f,d]=melody[musicIndex%melody.length];playMusicNote(f,d);musicIndex++;if(musicIndex%4===0)playChord();musicTimer=setTimeout(step,d*1000)}step()}
+function stopMusic(){if(musicTimer){clearTimeout(musicTimer);musicTimer=null}}
+// ---------- BIOME SOUNDSCAPES: synthesized nature audio, no external files ----------
+function clearAmbience(){
+  ambienceTimers.forEach(id=>clearTimeout(id)); ambienceTimers=[];
+  ambienceNodes.forEach(n=>{try{if(n.stop)n.stop();}catch(e){} try{n.disconnect();}catch(e){}});
+  ambienceNodes=[]; ambienceWorld=null;
+}
+function makeNoise(kind, volume, frequency, q=0.7){
+  if(!audioCtx)return;
+  const length=audioCtx.sampleRate*3, buffer=audioCtx.createBuffer(1,length,audioCtx.sampleRate), data=buffer.getChannelData(0);
+  for(let i=0;i<length;i++) data[i]=Math.random()*2-1;
+  const src=audioCtx.createBufferSource();src.buffer=buffer;src.loop=true;
+  const filter=audioCtx.createBiquadFilter();filter.type=kind;filter.frequency.value=frequency;filter.Q.value=q;
+  const gain=audioCtx.createGain();gain.gain.value=volume;
+  src.connect(filter);filter.connect(gain);gain.connect(ambienceBus);src.start();ambienceNodes.push(src,filter,gain);
+}
+function chirp(startFreq,endFreq,duration=.18,volume=.025,delay=0){
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime+delay,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type='sine';o.frequency.setValueAtTime(startFreq,t);o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),t+duration);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  o.connect(g);g.connect(ambienceBus);o.start(t);o.stop(t+duration+.03);ambienceNodes.push(o,g);
+}
+function scheduleNature(worldName, delay=500){
+  if(!audioCtx||!ambienceWorld||ambienceWorld!==worldName)return;
+  const later=(fn,ms)=>{const id=setTimeout(()=>{if(ambienceWorld===worldName)fn()},ms);ambienceTimers.push(id)};
+  if(worldName==='forest'||worldName==='jungle'||worldName==='cherry'){
+    // Birdsong: short paired whistles with varied pitch and pauses.
+    const base=worldName==='jungle'?1050:worldName==='cherry'?1350:920;
+    chirp(base,base*1.35,.12,.025);later(()=>chirp(base*1.22,base*1.05,.16,.022),150);
+    if(Math.random()<.48)later(()=>chirp(base*1.55,base*1.32,.11,.018),320);
+    later(()=>scheduleNature(worldName),1800+Math.random()*2600);
+  }else if(worldName==='rain'){
+    // Occasional close raindrops and distant thunder-like low rumble.
+    chirp(950+Math.random()*500,400+Math.random()*250,.045,.018);
+    if(Math.random()<.13)chirp(95,48,1.3,.012);
+    later(()=>scheduleNature(worldName),180+Math.random()*360);
+  }else if(worldName==='desert'||worldName==='savanna'){
+    chirp(480+Math.random()*160,650+Math.random()*250,.09,.012);
+    if(Math.random()<.25)chirp(180,120,.6,.009);
+    later(()=>scheduleNature(worldName),1800+Math.random()*3000);
+  }else if(worldName==='ice'){
+    chirp(1250+Math.random()*400,800+Math.random()*300,.32,.018);
+    later(()=>scheduleNature(worldName),2300+Math.random()*2400);
+  }else if(worldName==='ocean'){
+    chirp(700+Math.random()*250,950+Math.random()*350,.13,.018);
+    if(Math.random()<.6)chirp(420,800,.08,.014, .2);
+    later(()=>scheduleNature(worldName),1200+Math.random()*1800);
+  }else if(worldName==='volcano'){
+    chirp(100+Math.random()*80,55,.45,.018);
+    if(Math.random()<.35)chirp(500,180,.12,.012);
+    later(()=>scheduleNature(worldName),900+Math.random()*1600);
+  }else if(worldName==='mushroom'){
+    chirp(880+Math.random()*500,1200+Math.random()*400,.2,.018);
+    later(()=>scheduleNature(worldName),1700+Math.random()*2600);
+  }else if(worldName==='galaxy'){
+    chirp(440+Math.random()*500,880+Math.random()*500,.7,.012);
+    later(()=>scheduleNature(worldName),2200+Math.random()*2800);
+  }
+}
+// ---------- REAL RECORDED BIOME AMBIENCE ----------
+let currentAmbienceAudio=null, ambienceFadeTimer=null;
+const biomeAudio={
+  forest:'freesound_community-forest-wind-and-birds-6881.mp3',
+  desert:'tanweraman-desert-wind-2-350417.mp3',
+  ice:'dragon-studio-freezing-winter-wind-499654.mp3',
+  galaxy:'alex_jauk-dreamy-land-186119.mp3',
+  jungle:'audiopapkin-beautiful-birdsong-3-301866.mp3',
+  ocean:'freesound_community-gentle-ocean-waves-fizzing-bubbles-64980.mp3',
+  mushroom:'freesound_community-quiet-ambience-near-forest-area-56946.mp3',
+  volcano:'freesound_community-rumble-002-26712.mp3',
+  cherry:'freesound_community-birdsong-springenglish-countryside-33613.mp3',
+  savanna:'freesound_community-morning-breeze-and-birds-35105.mp3',
+  rain:'49656682-steady-rain-with-rolling-thunder-in-the-distance-341895.mp3'
+};
+function fadeOutAmbience(audio){
+  if(!audio)return;
+  const start=audio.volume, steps=12; let step=0;
+  const timer=setInterval(()=>{
+    step++; audio.volume=Math.max(0,start*(1-step/steps));
+    if(step>=steps){clearInterval(timer);audio.pause();audio.currentTime=0;}
+  },50);
+}
+function startBiomeAmbience(){
+  initAudio();
+  clearAmbience(); // stops any leftover synthesized ambience timers/nodes
+  if(!sfxOn){stopBiomeAmbience();return;}
+  const file=biomeAudio[world];
+  if(!file)return;
+  if(ambienceFadeTimer){clearInterval(ambienceFadeTimer);ambienceFadeTimer=null;}
+  const previous=currentAmbienceAudio;
+  if(previous){currentAmbienceAudio=null;fadeOutAmbience(previous);}
+  const audio=new Audio('sounds/'+file);
+  audio.loop=true;
+  audio.preload='auto';
+  audio.volume=0;
+  currentAmbienceAudio=audio;
+  const desiredVolume=Math.max(0,Math.min(1,Number($('sfxVol').value)/100*0.55));
+  const playPromise=audio.play();
+  if(playPromise&&playPromise.catch)playPromise.catch(()=>{ /* Browser may block playback until the next user gesture. */ });
+  let step=0; const steps=16;
+  ambienceFadeTimer=setInterval(()=>{
+    if(currentAmbienceAudio!==audio){clearInterval(ambienceFadeTimer);return;}
+    step++;audio.volume=Math.min(desiredVolume,desiredVolume*step/steps);
+    if(step>=steps){clearInterval(ambienceFadeTimer);ambienceFadeTimer=null;}
+  },50);
+}
+function stopBiomeAmbience(){
+  if(ambienceFadeTimer){clearInterval(ambienceFadeTimer);ambienceFadeTimer=null;}
+  const audio=currentAmbienceAudio;currentAmbienceAudio=null;
+  if(audio)fadeOutAmbience(audio);
+  clearAmbience();
+}
+
+function sfxMove(){if(!audioCtx||!sfxOn)return;soundTone(230,.065,'triangle',.035,sfxBus,175)}
+function sfxHit(){if(!audioCtx||!sfxOn)return;soundTone(125,.24,'sawtooth',.12,sfxBus,42);soundTone(68,.28,'triangle',.12,sfxBus,34)}
+function sfxPoint(){if(!audioCtx||!sfxOn)return;soundTone(660,.12,'sine',.09,sfxBus);setTimeout(()=>soundTone(880,.17,'sine',.08,sfxBus),75)}
+function sfxBest(){if(!audioCtx||!sfxOn)return;[523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>soundTone(f,.3,'sine',.08,sfxBus),i*105))}
+function sfxStart(){if(!audioCtx||!sfxOn)return;soundTone(392,.12,'triangle',.07,sfxBus);setTimeout(()=>soundTone(587.33,.18,'triangle',.07,sfxBus),90)}
+
+// ---------- GAME ----------
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),LW=800,LH=600,DPR=Math.min(2,window.devicePixelRatio||1);canvas.width=LW*DPR;canvas.height=LH*DPR;
+const $=id=>document.getElementById(id);let world='forest',mode='classic',running=false,paused=false,gameOver=false,last=0,spawnClock=0,score=0,elapsed=0,lives=3,obstacles=[],particles=[],keys={},bestScore=0,moveCooldown=0;
+const player={x:400,y:520,w:36,h:36,speed:470,vx:0};
+let powerups=[],shield=0,slow=0,invuln=0,shake=0,puClock=0,rafId=0,texts=[],warns=[],combo=0,nextBoss=30,bossLive=0,dashCD=0,dashT=0,dashDir=1,lastDir=1,rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches),runCoins=0,coinClock=0,padPrev=false,padStart=false;
+let coins=+LS.get('dtb-coins')||0,owned=JSON.parse(LS.get('dtb-owned')||'["biome"]'),skin=LS.get('dtb-skin')||'biome',achs=JSON.parse(LS.get('dtb-achs')||'[]');
+const themes={
+forest:{name:'Forest',emoji:'🌲',sky1:'#163f52',sky2:'#f5b96b',ground:'#214c37',accent:'#55f2b4',obstacles:['🪵','🪨','🍂']},
+desert:{name:'Desert',emoji:'🏜️',sky1:'#603d55',sky2:'#ffbe70',ground:'#aa713b',accent:'#ffd166',obstacles:['🌵','🪨','🟫']},
+ice:{name:'Ice World',emoji:'❄️',sky1:'#194a75',sky2:'#c4efff',ground:'#8bd8ed',accent:'#b8f7ff',obstacles:['🧊','❄️','🪨']},
+galaxy:{name:'Galaxy',emoji:'🌌',sky1:'#090d32',sky2:'#542a81',ground:'#201345',accent:'#e7a5ff',obstacles:['☄️','🪨','✦']},
+jungle:{name:'Jungle',emoji:'🌴',sky1:'#073e3a',sky2:'#5ab77a',ground:'#16452e',accent:'#a4f56a',obstacles:['🌿','🪵','🐸','🥥']},
+ocean:{name:'Ocean',emoji:'🌊',sky1:'#064b76',sky2:'#20b7c5',ground:'#07516a',accent:'#6df7ff',obstacles:['🪸','🐚','🐡','🪼']},
+mushroom:{name:'Mushroom Grove',emoji:'🍄',sky1:'#33284d',sky2:'#d59ab0',ground:'#553d59',accent:'#ffb7d5',obstacles:['🍄','🪵','✨','🍃']},
+volcano:{name:'Volcanic Lands',emoji:'🌋',sky1:'#271b2b',sky2:'#b84b31',ground:'#3a2526',accent:'#ff6b35',obstacles:['🪨','🔥','🌋','♨️']},
+cherry:{name:'Cherry Blossom',emoji:'🌸',sky1:'#586a9b',sky2:'#ffc6d9',ground:'#5a7850',accent:'#ff9fc7',obstacles:['🌸','🌺','🪵','🍃']},
+savanna:{name:'Savanna',emoji:'🦒',sky1:'#587c8a',sky2:'#ffc56d',ground:'#8a7338',accent:'#f3dc76',obstacles:['🪨','🌾','🪵','🌵']},
+rain:{name:'Rainforest',emoji:'🌧️',sky1:'#152d42',sky2:'#496e78',ground:'#214b43',accent:'#91e8ee',obstacles:['🪵','🪨','🍄','🌿']}
+};
+function bestKey(){return 'dtb-best-'+(mode==='journey'?'any':world)+'-'+mode}function loadBest(){bestScore=Number(LS.get(bestKey())||0);$('best').textContent=bestScore}
+function setWorld(w){if(running)return;world=w;document.querySelectorAll('[data-world]').forEach(b=>b.classList.toggle('active',b.dataset.world===w));$('worldName').textContent=themes[w].emoji+' '+themes[w].name;loadBest();draw(0)}
+function setMode(m){if(running)return;mode=m;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));$('modeLabel').textContent='Mode: '+({classic:'Classic',rush:'Speed Rush',zen:'Zen',hardcore:'Hardcore',attack:'Score Attack',journey:'Journey'}[m]);loadBest()}
+function resetGame(){score=0;elapsed=0;lives=mode==='hardcore'?1:3;obstacles=[];particles=[];keys={};spore=null;powerups=[];critters=[];cTimer=1;jt=0;jstate=0;jfade=0;player.vx=0;Object.assign(env,{wind:0,gp:0,dur:0,next:6,lt:8,flash:0,gy:5});warns=[];texts=[];combo=0;nextBoss=30;bossLive=0;dashCD=0;dashT=0;runCoins=0;coinClock=0;shield=0;slow=0;invuln=0;shake=0;puClock=0;$('pauseBtn').textContent='⏸ Pause';spawnClock=0;player.x=LW/2-player.w/2;gameOver=false;paused=false;running=true;$('overlay').classList.add('hidden');$('score').textContent='0';$('time').textContent='0.0';$('lives').textContent=lives;$('message').textContent='Stay alert!';last=performance.now();sfxStart();startBiomeAmbience();if(musicOn)startMusic();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}
+function endGame(){running=false;save();renderSkins();gameOver=true;stopMusic();stopBiomeAmbience();$('overlayTitle').textContent=mode==='zen'?'Lovely run!':mode==='attack'?"Time's up!":'Game over!';$('overlayText').textContent=`Score: ${score}. You survived ${elapsed.toFixed(1)} seconds in ${themes[world].name}. Try another run to beat your best!`;$('startBtn').textContent='↻ Play Again';$('overlay').classList.remove('hidden');$('message').textContent='Run finished.'}
+function togglePause(){if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';$('message').textContent=paused?'Paused':'Keep moving!';if(currentAmbienceAudio){if(paused)currentAmbienceAudio.pause();else currentAmbienceAudio.play().catch(()=>{})}if(layerAudio){if(paused)layerAudio.pause();else layerAudio.play().catch(()=>{})}if(paused){stopMusic();draw(0)}else{if(musicOn)startMusic();last=performance.now();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}}
+function spawnObstacle(){const size=25+Math.random()*27;obstacles.push({x:10+Math.random()*(LW-size-20),y:-size,size,speed:(135+Math.random()*95+elapsed*2)*({rush:1.65,hardcore:1.3,attack:1.25}[mode]||1),icon:themes[world].obstacles[Math.floor(Math.random()*themes[world].obstacles.length)],hue:Math.random(),spin:(Math.random()-.5)*2,zig:Math.random()<Math.min(.3,elapsed/200)})}
+function burst(x,y,n,life=.5){for(let j=0;j<n;j++)particles.push({x,y,vx:(Math.random()-.5)*240,vy:(Math.random()-.7)*220,life})}
+const PU={heart:'❤️',shield:'🛡️',slow:'⏳',coin:'🪙'};
+function spawnPowerup(forced){const types=mode==='hardcore'?['shield','slow']:['heart','shield','slow'],type=forced||types[Math.floor(Math.random()*types.length)];powerups.push({type,x:30+Math.random()*(LW-60),y:-30,size:30})}
+const SKINS=[{id:'biome',n:'Biome color',c:null,cost:0},{id:'gold',n:'Gold',c:'#ffd166',cost:25},{id:'rose',n:'Rose',c:'#ff7aa8',cost:50},{id:'neon',n:'Neon',c:'#7cff4f',cost:75},{id:'void',n:'Void',c:'#9b6bff',cost:100}];
+const ACH={s50:'Score 50',s150:'Score 150',c10:'10 near-miss combo',t60:'Survive 60s',coin25:'25 coins in one run',boss:'Survive a boss wave'};
+const mm=()=>({rush:2,hardcore:2}[mode]||1),cm=()=>1+Math.min(3,Math.floor(combo/5));
+function save(){LS.set('dtb-coins',coins);LS.set('dtb-owned',JSON.stringify(owned));LS.set('dtb-skin',skin);LS.set('dtb-achs',JSON.stringify(achs))}
+function renderSkins(){$('coins').textContent=coins;$('skins').innerHTML='';SKINS.forEach(k=>{const b=document.createElement('button'),has=owned.includes(k.id);b.className=skin===k.id?'active':'';b.textContent=(k.c?'■ ':'◆ ')+k.n+(has?(skin===k.id?' ✓':''):' · 🪙'+k.cost);if(k.c)b.style.color=k.c;b.onclick=()=>{if(!has){if(coins<k.cost)return;coins-=k.cost;owned.push(k.id)}skin=k.id;save();renderSkins()};$('skins').appendChild(b)});$('achInfo').textContent='🏆 Achievements: '+achs.length+'/'+Object.keys(ACH).length}
+function pop(x,y,txt,col='#fff'){texts.push({x,y,txt,col,life:1})}
+function ach(id){if(achs.includes(id))return;achs.push(id);save();renderSkins();pop(LW/2,120,'🏆 '+ACH[id],'#ffd166');$('message').textContent='Achievement: '+ACH[id]}
+function startBoss(){const wall=Math.random()<.5,cols=13,w=LW/cols;let cs=[];if(wall){const g=Math.floor(Math.random()*(cols-2));for(let c=0;c<cols;c++)if(c!==g&&c!==g+1)cs.push(c)}else for(let k=0;k<7;k++)cs.push(Math.floor(Math.random()*cols));[...new Set(cs)].forEach(c=>warns.push({x:c*w,w,life:1.4,wall}));$('message').textContent=wall?'⚠ Wall incoming — find the gap!':'⚠ Meteor shower!';pop(LW/2,90,wall?'⚠ WALL!':'☄ METEORS!','#ff6b6b');bossLive=4}
+function doDash(){if(!running||paused||dashCD>0)return;dashDir=lastDir;dashT=.18;dashCD=2;invuln=Math.max(invuln,.3);sfxMove()}
+function padDir(){const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(Boolean);if(!gp)return 0;const a=gp.buttons[0]&&gp.buttons[0].pressed;if(a&&!padPrev)doDash();padPrev=a;const st=gp.buttons[9]&&gp.buttons[9].pressed;if(st&&!padStart)togglePause();padStart=st;let d=gp.axes[0]||0;if(Math.abs(d)<.2)d=0;if(gp.buttons[14]&&gp.buttons[14].pressed)d=-1;if(gp.buttons[15]&&gp.buttons[15].pressed)d=1;return d}
+let spore=null,critters=[],cTimer=0,jt=0,jstate=0,jfade=0;
+const BIRD=['forest','jungle','cherry','savanna','desert'],BFLY=['forest','jungle','cherry','mushroom','savanna'];
+function spawnCritter(){const W=LW,H=LH;let k=null;if(world==='ocean')k='fish';else{const o=[];if(BIRD.includes(world))o.push('bird');if(BFLY.includes(world))o.push('fly');if(o.length)k=o[Math.floor(Math.random()*o.length)]}if(!k)return;const d=Math.random()<.5?-1:1;
+if(k==='fly')critters.push({k,x:40+Math.random()*(W-80),y:-10,vx:(Math.random()-.5)*30,vy:0,ph:Math.random()*6});
+else critters.push({k,x:d>0?-20:W+20,y:k==='fish'?H*.45+Math.random()*H*.4:40+Math.random()*H*.3,vx:d*(k==='bird'?70:55)*(.8+Math.random()*.5),vy:0,ph:Math.random()*6,col:['#ffb347','#ff7a8a','#7dd3ff'][Math.floor(Math.random()*3)]})}
+const env={wind:0,gp:0,dur:0,max:1,dir:1,next:6,lt:8,flash:0,gy:5},GUST=['forest','cherry','savanna','desert','ice','rain'];
+function thunder(){if(!audioCtx||!sfxOn)return;setTimeout(()=>{soundTone(70,1.3,'sawtooth',.09,sfxBus,30);soundTone(50,1.1,'triangle',.08,sfxBus,25)},250)}
+function rectHit(a,b){return a.x<b.x+b.size&&a.x+a.w>b.x&&a.y<b.y+b.size&&a.y+a.h>b.y}
+function loop(now){if(!running||paused)return;const dt=Math.min((now-last)/1000,.035);last=now;update(dt);draw(dt);rafId=requestAnimationFrame(loop)}
+function update(dt){elapsed+=dt;const sf=(slow>0?.5:1)*(world==='galaxy'?.82:1);slow=Math.max(0,slow-dt);shield=Math.max(0,shield-dt);invuln=Math.max(0,invuln-dt);shake=Math.max(0,shake-dt);
+{const txt=(Math.abs(env.wind)>25?(env.wind<0?'⬅ ':'➡ ')+(world==='ocean'?'current ':'wind '):'')+(shield>0?'🛡️ '+Math.ceil(shield)+'s ':'')+(slow>0?'⏳ '+Math.ceil(slow)+'s':'');const b=$('buffs');b.textContent=txt;b.style.display=txt?'':'none'}
+env.next-=dt;if(env.next<=0&&env.dur<=0&&GUST.includes(world)){env.dur=env.max=world==='desert'?5:3;env.dir=Math.random()<.5?-1:1;env.next=8+Math.random()*7;$('message').textContent=world==='desert'?'🌪 Sandstorm!':world==='ice'?'🌬 Blizzard gust!':'🍃 Wind gust!'}
+env.dur=Math.max(0,env.dur-dt);env.gp=env.dur>0?Math.sin(Math.PI*(1-env.dur/env.max)):0;env.wind=world==='ocean'?Math.sin(elapsed*.4)*60:env.dir*env.gp*(world==='desert'?130:world==='ice'?50:100);
+if(world==='rain'){env.lt-=dt;if(env.lt<=0){env.lt=9+Math.random()*8;env.flash=.35;thunder()}env.flash=Math.max(0,env.flash-dt)}
+if(world==='jungle'||world==='savanna'){env.ev=(env.ev===undefined?7:env.ev)-dt;if(env.ev<=0){env.ev=8+Math.random()*4;if(world==='jungle'){warns.push({x:40+Math.random()*(LW-120),w:60,life:1.2,geyser:true});$('message').textContent='🥥 Coconut drop!'}else{const w=LW/13;for(let k=0;k<5;k++)warns.push({x:Math.floor(Math.random()*13)*w,w,life:1.4,wall:true});$('message').textContent='🦬 Stampede!'}}}
+if(world==='mushroom'){env.sp=(env.sp===undefined?5:env.sp)-dt;if(env.sp<=0&&!spore){env.sp=9+Math.random()*4;const l=Math.random()<.5;spore={x:l?-70:LW+70,vx:l?60:-60,life:7};$('message').textContent='🍄 Spore cloud — it slows you!'}}
+if(spore){spore.x+=spore.vx*dt;spore.life-=dt;if(spore.life<=0||spore.x<-120||spore.x>LW+120)spore=null}
+env.slowZone=!!spore&&Math.abs(spore.x-(player.x+player.w/2))<75;
+if(world==='volcano'){env.gy-=dt;if(env.gy<=0){env.gy=6+Math.random()*3;warns.push({x:40+Math.random()*(LW-120),w:60,life:1.2,geyser:true});$('message').textContent='🌋 Geyser warning!'}}
+dashCD=Math.max(0,dashCD-dt);dashT=Math.max(0,dashT-dt);const dl=dashCD>0?'⚡ '+dashCD.toFixed(1):'⚡ Dash';$('dashBtn').textContent=dl;$('dashBtn2').textContent=dashCD>0?dashCD.toFixed(1):'⚡';$('combo').textContent=cm();
+cTimer-=dt;if(cTimer<=0){cTimer=2+Math.random()*2.5;if(critters.length<9)spawnCritter()}
+for(let i=critters.length-1;i>=0;i--){const c=critters[i];c.ph+=dt*(c.k==='fly'?9:6);c.x+=c.vx*dt+(c.k==='fly'?Math.sin(c.ph*.6)*40*dt:0);c.y+=c.vy*dt+(c.k==='fish'?Math.sin(c.ph)*12*dt:0)+(c.k==='fly'?45*dt:0);
+if(c.x<-60||c.x>LW+60||c.y<-60||c.y>LH+20){critters.splice(i,1);continue}
+if(c.k==='fly'&&Math.abs(c.x-(player.x+player.w/2))<26&&Math.abs(c.y-(player.y+player.h/2))<26){critters.splice(i,1);score+=3;$('score').textContent=score;pop(c.x,c.y,'🦋 +3','#ffb3e6');sfxPoint()}}
+if(mode==='journey'){jt+=dt;if(jstate===0&&jt>=45){jstate=1;jfade=0;$('message').textContent='🧭 Entering a new world…'}
+if(jstate===1){jfade+=dt;if(jfade>=1){jstate=2;jt=0;const ks=Object.keys(themes);world=ks[(ks.indexOf(world)+1)%ks.length];$('worldName').textContent=themes[world].emoji+' '+themes[world].name;obstacles=[];warns=[];critters=[];Object.assign(env,{wind:0,gp:0,dur:0,next:6,lt:8,flash:0,gy:5});startBiomeAmbience();pop(LW/2,110,themes[world].emoji+' '+themes[world].name,'#fff')}}
+else if(jstate===2){jfade-=dt;if(jfade<=0){jstate=0;jfade=0}}}
+if(mode==='attack'&&elapsed>=60){endGame();return}if(elapsed>=60)ach('t60');
+if(mode!=='zen'&&elapsed>=nextBoss){nextBoss+=35;startBoss()}
+if(bossLive>0){bossLive-=dt;if(bossLive<=0){score+=5;$('score').textContent=score;ach('boss')}}
+for(let i=warns.length-1;i>=0;i--){const w=warns[i];w.life-=dt;if(w.life<=0){const z=46;for(let q=0;q<(w.geyser?3:1);q++)obstacles.push({x:w.x+(w.w-z)/2,y:-z-q*85,size:z,speed:w.wall?300:w.geyser?340:380,icon:themes[world].obstacles[w.geyser?1:0],hue:Math.random(),spin:0});warns.splice(i,1)}}
+for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.y-=40*dt;t.life-=dt;if(t.life<=0)texts.splice(i,1)}
+coinClock+=dt;if(coinClock>2.2+Math.random()*2){coinClock=0;spawnPowerup('coin')}
+if(mode!=='zen'){puClock+=dt;if(puClock>9+Math.random()*4){puClock=0;spawnPowerup()}}
+moveCooldown=Math.max(0,moveCooldown-dt);let dir=padDir();if(keys.ArrowLeft||keys.a||keys.A)dir--;if(keys.ArrowRight||keys.d||keys.D)dir++;if(dir)lastDir=dir>0?1:-1;{const k=world==='ice'?10:30;player.vx+=(dir*player.speed*(env.slowZone?.55:1)-player.vx)*Math.min(1,k*dt);player.x+=(dashT>0?dashDir*1000:player.vx+env.wind)*dt}if(dashT>0)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:0,vy:0,life:.25});player.x=Math.max(0,Math.min(LW-player.w,player.x));if(dir&&moveCooldown<=0){sfxMove();moveCooldown=.22}spawnClock+=dt;const interval=Math.max(.32,(mode==='rush'?.52:mode==='attack'?.6:mode==='hardcore'?.75:.95)-elapsed*.005);if(spawnClock>interval){spawnClock=0;spawnObstacle();if(mode==='rush'&&Math.random()<.35)spawnObstacle()}
+for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=o.speed*dt*sf;if(o.zig)o.x=Math.max(0,Math.min(LW-o.size,o.x+Math.sin(elapsed*3+o.hue*6)*70*dt));if(o.y>LH){obstacles.splice(i,1);const near=Math.abs(o.x+o.size/2-(player.x+player.w/2))<o.size/2+player.w/2+10;const nm=near&&mode!=='zen';if(nm){combo++;if(combo>=10)ach('c10');pop(o.x+o.size/2,LH-90,'NEAR x'+cm(),'#ffd166')}score+=(mm()+(nm?1:0))*cm();$('score').textContent=score;if(score>=50)ach('s50');if(score>=150)ach('s150');if(score>0&&score%10===0)sfxPoint();if(score>bestScore){bestScore=score;LS.set(bestKey(),bestScore);$('best').textContent=bestScore;if(score%10===0)sfxBest()}continue}if(mode!=='zen'&&rectHit(player,o)){obstacles.splice(i,1);if(shield>0){shield=0;invuln=.8;shake=.15;sfxPoint();burst(player.x+player.w/2,player.y+player.h/2,10);$('message').textContent='Shield absorbed it!';continue}if(invuln>0)continue;invuln=1.1;shake=.3;critters.forEach(c=>{if(c.k!=='fly'){c.vx*=4;c.vy=-120}});combo=0;if(navigator.vibrate)navigator.vibrate(80);lives--;$('lives').textContent=lives;sfxHit();for(let j=0;j<14;j++)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:(Math.random()-.5)*240,vy:(Math.random()-.7)*220,life:.5});if(lives<=0){endGame();return}}}
+for(let i=powerups.length-1;i>=0;i--){const p=powerups[i];p.y+=95*dt*sf;if(p.y>LH+30){powerups.splice(i,1);continue}
+if(rectHit(player,{x:p.x-p.size/2,y:p.y-p.size/2,size:p.size})){powerups.splice(i,1);sfxPoint();burst(p.x,p.y,12,.6);
+if(p.type==='coin'){coins++;runCoins++;$('coins').textContent=coins;LS.set('dtb-coins',coins);if(runCoins>=25)ach('coin25');pop(p.x,p.y,'+🪙','#ffd166')}else if(p.type==='heart'){lives=Math.min(5,lives+1);$('lives').textContent=lives;$('message').textContent='+1 life!'}else if(p.type==='shield'){shield=8;$('message').textContent='Shield up!'}else{slow=5;$('message').textContent='Slow motion!'}}}
+for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;if(p.life<=0)particles.splice(i,1)}$('time').textContent=elapsed.toFixed(1)}
+function draw(dt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.save();if(shake>0&&!rm){const m=14*Math.min(1,shake/.3);ctx.translate((Math.random()-.5)*m,(Math.random()-.5)*m)}const W=LW,H=LH,t=themes[world],g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,t.sky1);g.addColorStop(1,t.sky2);ctx.fillStyle=g;ctx.fillRect(-12,-12,W+24,H+24);
+// BIOME-SPECIFIC NATURE: each world has its own terrain, plants, water, sky and ambience.
+const time=elapsed;
+function block(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
+function tree(x,base,scale,leaf, trunk='#5a3828',kind='round'){
+  const tw=14*scale, th=70*scale; block(x-tw/2,base-th,tw,th,trunk);
+  if(kind==='pine'){
+    for(let k=0;k<4;k++){ctx.fillStyle=leaf;ctx.beginPath();ctx.moveTo(x,base-th-35*scale+k*22*scale);ctx.lineTo(x-34*scale+k*4*scale,base-th+18*scale+k*20*scale);ctx.lineTo(x+34*scale-k*4*scale,base-th+18*scale+k*20*scale);ctx.closePath();ctx.fill()}
+  } else if(kind==='acacia'){
+    block(x-3*scale,base-th,6*scale,th*.35,'#765033');block(x-52*scale,base-th-8*scale,104*scale,14*scale,leaf);block(x-39*scale,base-th-23*scale,78*scale,18*scale,leaf);
+  } else {ctx.fillStyle=leaf;ctx.fillRect(x-35*scale,base-th-15*scale,70*scale,38*scale);ctx.fillRect(x-24*scale,base-th-29*scale,48*scale,22*scale);ctx.fillRect(x-45*scale,base-th+1*scale,90*scale,20*scale);}
+}
+function drawNature(){
+  const base=H*.76;
+  if(world==='galaxy'){
+    for(let i=0;i<115;i++){let x=(i*97+29)%W,y=(i*67+17)%H;ctx.fillStyle=`rgba(255,255,255,${.28+(i%5)*.13})`;ctx.fillRect(x,y,2+(i%2),2+(i%2))}
+    ctx.save();ctx.translate(650,110);ctx.rotate(-.25);ctx.strokeStyle='#e8c5ff88';ctx.lineWidth=12;ctx.beginPath();ctx.ellipse(0,0,75,22,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,38,0,Math.PI*2);ctx.fillStyle='#c9a0ff';ctx.fill();ctx.restore();
+    for(let i=0;i<6;i++){let x=(i*151+80)%W,y=170+(i*89)%250;block(x,y,24,24,'#5e3e8a');block(x+5,y-5,14,8,'#a07bd0');block(x+5,y+24,14,7,'#38295f')}
+  } else if(world==='forest'){
+    ctx.fillStyle='#ffe7a0';ctx.beginPath();ctx.arc(650,105,42,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<9;i++){let x=i*102-15;tree(x,base,0.75+(i%3)*.16,i%2?'#246b45':'#32844c','#60412b')}
+    // stream with stepping stones
+    ctx.fillStyle='#3bbed0';ctx.beginPath();ctx.moveTo(300,H);ctx.lineTo(360,base);ctx.lineTo(455,base);ctx.lineTo(520,H);ctx.fill();
+    for(let i=0;i<18;i++){let x=(i*73+20)%W,y=base+(i%3)*28;block(x,y,10,5,'#9cdb8a')}
+  } else if(world==='desert'){
+    ctx.fillStyle='#ffe5a0';ctx.beginPath();ctx.arc(650,105,43,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#d69a55';ctx.beginPath();ctx.moveTo(0,base);for(let x=0;x<=W;x+=20)ctx.lineTo(x,base-35-Math.sin(x*.013)*38);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+    for(let i=0;i<6;i++){let x=(i*139+50)%W,y=base-15+(i%2)*28;block(x,y-50,12,65,'#34764c');block(x-17,y-34,17,10,'#34764c');block(x-17,y-43,10,20,'#34764c');block(x+10,y-24,16,10,'#34764c');block(x+16,y-35,10,20,'#34764c')}
+    for(let i=0;i<4;i++){let x=i*210+40;ctx.fillStyle='#9c6c57';ctx.beginPath();ctx.moveTo(x,base-55);ctx.lineTo(x+35,base-130);ctx.lineTo(x+75,base-55);ctx.fill()}
+  } else if(world==='ice'){
+    ctx.fillStyle='#efffff';ctx.beginPath();ctx.arc(650,105,32,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<7;i++){let x=i*125-10,h=110+(i*37)%115;ctx.fillStyle=i%2?'#c9f2ff':'#9bd8ee';ctx.beginPath();ctx.moveTo(x,base);ctx.lineTo(x+35,base-h);ctx.lineTo(x+58,base-35);ctx.lineTo(x+82,base-h*.72);ctx.lineTo(x+110,base);ctx.fill()}
+    for(let i=0;i<4;i++)tree(i*240+45,base,0.65,'#397f83','#654c43','pine');
+    ctx.fillStyle='#eaffff';for(let i=0;i<25;i++){let x=(i*83+time*12)%W,y=(i*59+time*22)%H;ctx.fillRect(x,y,3,3)}
+  } else if(world==='jungle'){
+    ctx.fillStyle='#d4f17c22';ctx.beginPath();ctx.arc(650,100,55,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<10;i++){let x=i*92-10;tree(x,base,1.0+(i%3)*.15,i%2?'#146344':'#21804a','#523c28')}
+    // hanging vines and layered giant leaves
+    for(let i=0;i<13;i++){let x=(i*71+23)%W,len=55+(i*31)%100;block(x,0,5,len,'#2c8d4b');block(x-10,len-15,17,7,'#75ce54');block(x+3,len+7,17,7,'#4aaa43')}
+    for(let i=0;i<16;i++){let x=(i*57+time*8)%W,y=base-30-(i*29)%150;ctx.fillStyle=i%2?'#55b94c':'#a4e56b';ctx.beginPath();ctx.ellipse(x,y,15,5,i%2?.7:-.7,0,Math.PI*2);ctx.fill()}
+  } else if(world==='ocean'){
+    // Underwater gradient, sunlight shafts, layered moving waves and coral reef
+    for(let i=0;i<7;i++){ctx.fillStyle=`rgba(125,245,255,${.035+i*.008})`;ctx.beginPath();ctx.moveTo(70+i*105,0);ctx.lineTo(125+i*105,0);ctx.lineTo(235+i*75,base);ctx.lineTo(180+i*75,base);ctx.fill()}
+    for(let layer=0;layer<4;layer++){ctx.beginPath();ctx.moveTo(0,base+layer*35);for(let x=0;x<=W;x+=12)ctx.lineTo(x,base+layer*35+Math.sin(x*.022+time*(.7+layer*.2))*9);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=['#087f91','#07677f','#07546e','#063e59'][layer];ctx.fill()}
+    for(let i=0;i<10;i++){let x=i*88+15,h=28+(i*19)%60;block(x,base-h,9,h,'#e28c83');block(x-9,base-h+12,11,8,'#ffb2a2');block(x+7,base-h+25,12,8,'#f4a18f');}
+    for(let i=0;i<20;i++){let x=(i*61+time*8)%W,y=H-((i*49+time*24)%(H-60));ctx.strokeStyle='#b8faff99';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,3+(i%4),0,Math.PI*2);ctx.stroke()}
+    ctx.fillStyle='#f3e8b0';ctx.fillRect(0,H-24,W,24);for(let i=0;i<22;i++)block(i*39,H-30-(i%3)*3,24,5,'#c7b47b');
+  } else if(world==='mushroom'){
+    ctx.fillStyle='#fff0cc';ctx.beginPath();ctx.arc(650,105,36,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<7;i++){let x=i*125+5,h=75+(i*29)%95;block(x+22,base-h,17,h,'#e7d0b5');ctx.fillStyle=i%2?'#d65d83':'#b94f74';ctx.beginPath();ctx.ellipse(x+30,base-h,42,24,0,Math.PI,Math.PI*2);ctx.fill();for(let j=0;j<4;j++){ctx.fillStyle='#ffe6eb';ctx.beginPath();ctx.arc(x+5+j*16,base-h-5-(j%2)*6,3,0,Math.PI*2);ctx.fill()}}
+    for(let i=0;i<18;i++){let x=(i*73+time*4)%W,y=(i*47+time*8)%(H-50);ctx.fillStyle='#ffd3ef88';ctx.fillRect(x,y,4,4)}
+  } else if(world==='volcano'){
+    ctx.fillStyle='#ff8a48';ctx.beginPath();ctx.arc(650,105,36,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#382b32';ctx.beginPath();ctx.moveTo(0,base);ctx.lineTo(100,base-70);ctx.lineTo(205,base-35);ctx.lineTo(365,base-205);ctx.lineTo(430,base-165);ctx.lineTo(510,base-45);ctx.lineTo(650,base-100);ctx.lineTo(800,base-35);ctx.lineTo(800,H);ctx.lineTo(0,H);ctx.fill();
+    ctx.fillStyle='#f24b28';ctx.beginPath();ctx.moveTo(348,base-190);ctx.lineTo(365,base-205);ctx.lineTo(384,base-193);ctx.lineTo(376,base-180);ctx.fill();
+    for(let i=0;i<9;i++){let x=(i*97+time*12)%W,y=base-20-((i*61+time*28)%180);ctx.fillStyle=i%2?'#ff7b2f':'#ffcc45';ctx.fillRect(x,y,4+(i%3),6+(i%3))}
+    ctx.fillStyle='#ff5b25';for(let i=0;i<7;i++){let x=i*127+20;ctx.fillRect(x,H-28,75,4);ctx.fillRect(x+20,H-20,45,3)}
+  } else if(world==='cherry'){
+    ctx.fillStyle='#fff0ba';ctx.beginPath();ctx.arc(650,105,36,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<7;i++){let x=i*130+10;block(x,base-115,13,115,'#654b4c');block(x-25,base-145,65,40,'#f7a8cc');block(x-38,base-125,80,27,'#ffbed8');block(x-15,base-165,45,30,'#f58dbb');block(x-30,base-115,25,20,'#ffd4e4')}
+    for(let i=0;i<35;i++){let x=(i*67+time*(8+i%3))%W,y=(i*43+time*(10+i%4))%H;ctx.fillStyle=i%2?'#ffc2dc':'#fff0f6';ctx.save();ctx.translate(x,y);ctx.rotate(time+i);ctx.fillRect(-3,-2,6,4);ctx.restore()}
+  } else if(world==='rain'){
+    // Cloudy rain-soaked forest with distant hills, tall trees and puddles.
+    ctx.fillStyle='#a8d7e4';ctx.beginPath();ctx.arc(650,105,29,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<9;i++){let x=i*103-10;tree(x,base,0.82+(i%3)*.15,i%2?'#174d40':'#23664d','#3e382f');}
+    ctx.fillStyle='#244b53';ctx.beginPath();ctx.moveTo(0,base+15);for(let x=0;x<=W;x+=24)ctx.lineTo(x,base-25-Math.sin(x*.018)*20);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+    for(let i=0;i<7;i++){let x=i*127+15;ctx.fillStyle='#4b9aa0';ctx.beginPath();ctx.ellipse(x,H-20,22,5,0,0,Math.PI*2);ctx.fill();}
+  } else if(world==='savanna'){
+    ctx.fillStyle='#ffe7a2';ctx.beginPath();ctx.arc(650,105,43,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#c59a53';ctx.beginPath();ctx.moveTo(0,base);for(let x=0;x<=W;x+=20)ctx.lineTo(x,base-18-Math.sin(x*.012)*24);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+    for(let i=0;i<6;i++)tree(i*145+25,base,0.9+(i%2)*.2,'#497344','#765037','acacia');
+    for(let i=0;i<28;i++){let x=(i*37)%W,h=8+(i%4)*5;ctx.strokeStyle='#d9c45d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,H-24);ctx.lineTo(x-4,H-24-h);ctx.stroke()}
+  }
+}
+drawNature();
+// distant layers
+ctx.fillStyle=t.ground;ctx.globalAlpha=.28;ctx.beginPath();ctx.moveTo(0,H*.72);for(let x=0;x<=W;x+=50)ctx.lineTo(x,H*.68+Math.sin(x*.017+(world==='galaxy'?1:0))*25);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();ctx.globalAlpha=1;
+// ground tiles: underwater sand, lava cracks, petals, snow, or biome soil
+for(let x=0;x<W;x+=38){ctx.fillStyle=(x/38)%2?'#ffffff10':'#00000010';ctx.fillRect(x,H-24,38,24);ctx.fillStyle=t.accent+'66';ctx.fillRect(x,H-24,36,3);if(world==='volcano'&&x%3===0){ctx.fillStyle='#ff6b3566';ctx.fillRect(x+7,H-18,18,3)}if(world==='cherry'&&x%4===0){ctx.fillStyle='#ffd5e566';ctx.fillRect(x+10,H-21,5,3)}}
+if(world!=='galaxy'){const mc={volcano:'110,95,100',desert:'235,195,135',ice:'235,250,255',ocean:'150,240,255'}[world]||'255,255,255';ctx.fillStyle=`rgba(${mc},.08)`;for(let i=0;i<6;i++){const mx=((i*210+elapsed*(5+i*3))%(W+340))-170;ctx.beginPath();ctx.ellipse(mx,H*.6+i*13,170,20+i*3,0,0,6.3);ctx.fill()}}
+const night=world==='galaxy'?0:(1-Math.cos(elapsed/90*Math.PI*2))/2*.55;
+if(night>.01){ctx.fillStyle=`rgba(6,12,45,${night})`;ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';for(let i=0;i<30;i++){ctx.globalAlpha=Math.min(1,night*2)*(.4+.6*Math.abs(Math.sin(elapsed+i)));ctx.fillRect((i*131)%W,(i*53)%(H*.5),2,2)}ctx.globalAlpha=1;
+if(['forest','jungle','cherry','mushroom','rain','savanna'].includes(world)){for(let i=0;i<16;i++){const fx=(i*97+Math.sin(elapsed*.7+i)*40+W)%W,fy=H*.45+((i*53)%(H*.4))+Math.cos(elapsed*.9+i)*18;ctx.globalAlpha=Math.min(1,night*1.6*(.4+.6*Math.abs(Math.sin(elapsed*2+i))));ctx.fillStyle='#d9ff7a';ctx.beginPath();ctx.arc(fx,fy,2.5,0,6.3);ctx.fill()}ctx.globalAlpha=1}}
+// decorative floating pixels drift with time only during gameplay
+if(running&&!paused){for(let i=0;i<12;i++){let x=(i*83+elapsed*13)%W,y=(i*59+elapsed*22)% (H-60);ctx.fillStyle=t.accent+'55';ctx.fillRect(x,y,4,4)}}
+obstacles.forEach(o=>{
+  const x=o.x,y=o.y,z=o.size;ctx.save();ctx.translate(x+z/2,y+z/2);ctx.rotate(o.spin*(elapsed%1)*.18);ctx.translate(-z/2,-z/2);
+  // Clean biome-shaped hazards: no offset shadow or decorative outline.
+  // Actual biome-shaped hazards, not just recoloured squares.
+  if(world==='forest'||world==='jungle'||world==='cherry'||world==='rain'){
+    if(o.icon==='🪵'){ctx.fillStyle='#70472b';ctx.fillRect(0,z*.2,z,z*.62);ctx.fillStyle='#a97945';ctx.fillRect(3,z*.25,z-6,z*.15);ctx.fillStyle='#e0bc7b';ctx.beginPath();ctx.arc(z*.82,z*.51,z*.19,0,Math.PI*2);ctx.fill();ctx.fillStyle='#7a4a2c';ctx.beginPath();ctx.arc(z*.82,z*.51,z*.11,0,Math.PI*2);ctx.fill();}
+    else if(o.icon==='🍂'||o.icon==='🍃'||o.icon==='🌸'||o.icon==='🌿'){ctx.fillStyle=world==='cherry'?'#ffb9d6':world==='forest'?'#d4a94b':'#45a95b';ctx.beginPath();ctx.ellipse(z/2,z/2,z*.48,z*.22,.65,0,Math.PI*2);ctx.fill();ctx.fillStyle=world==='cherry'?'#fff0f5':'#eaffce';ctx.fillRect(z*.46,z*.25,2,z*.5);}
+    else {ctx.fillStyle='#686f70';ctx.beginPath();ctx.moveTo(2,z*.78);ctx.lineTo(z*.15,z*.3);ctx.lineTo(z*.5,2);ctx.lineTo(z*.86,z*.2);ctx.lineTo(z-2,z*.75);ctx.closePath();ctx.fill();ctx.fillStyle='#a9b5a8';ctx.fillRect(z*.22,z*.28,z*.22,4);}
+  } else if(world==='desert'||world==='savanna'){
+    if(o.icon==='🌵'){ctx.fillStyle='#3b854d';ctx.fillRect(z*.35,0,z*.3,z);ctx.fillRect(z*.08,z*.35,z*.3,z*.15);ctx.fillRect(z*.08,z*.2,z*.14,z*.28);ctx.fillRect(z*.62,z*.55,z*.3,z*.15);ctx.fillRect(z*.78,z*.38,z*.14,z*.3);ctx.fillStyle='#b9db83';for(let k=0;k<4;k++)ctx.fillRect(z*.42+k*3,z*.15,1,4);}
+    else if(o.icon==='🌾'){ctx.strokeStyle='#dfc45e';ctx.lineWidth=3;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(z*.2+k*z*.18,z);ctx.lineTo(z*.12+k*z*.2,z*.18);ctx.stroke();ctx.fillStyle='#e9d57b';ctx.fillRect(z*.08+k*z*.2,z*.12,6,9);}}
+    else {ctx.fillStyle='#b98555';ctx.beginPath();ctx.moveTo(1,z*.82);ctx.lineTo(z*.2,z*.2);ctx.lineTo(z*.56,z*.05);ctx.lineTo(z*.95,z*.72);ctx.closePath();ctx.fill();ctx.fillStyle='#e2b77c';ctx.fillRect(z*.25,z*.3,z*.23,4);}
+  } else if(world==='ice'){ctx.fillStyle='#b8f1ff';ctx.beginPath();ctx.moveTo(z*.18,z*.05);ctx.lineTo(z*.85,z*.22);ctx.lineTo(z*.72,z*.86);ctx.lineTo(z*.28,z);ctx.lineTo(z*.05,z*.45);ctx.closePath();ctx.fill();ctx.fillStyle='#efffff';ctx.fillRect(z*.22,z*.2,z*.3,4);ctx.fillStyle='#75c8e4';ctx.fillRect(z*.57,z*.4,z*.2,z*.32);}
+  else if(world==='ocean'){ctx.fillStyle=o.icon==='🪸'?'#ff8b91':'#edc7a1';if(o.icon==='🪸'){ctx.fillRect(z*.42,z*.35,z*.18,z*.6);ctx.fillRect(z*.18,z*.18,z*.17,z*.5);ctx.fillRect(z*.65,z*.05,z*.17,z*.6);}else{ctx.beginPath();ctx.ellipse(z/2,z*.58,z*.4,z*.23,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff0c4';ctx.fillRect(z*.43,z*.5,Math.max(2,z*.12),Math.max(2,z*.12));}}
+  else if(world==='volcano'){ctx.fillStyle='#40353a';ctx.beginPath();ctx.moveTo(1,z*.9);ctx.lineTo(z*.2,z*.3);ctx.lineTo(z*.45,z*.42);ctx.lineTo(z*.7,1);ctx.lineTo(z*.9,z*.25);ctx.lineTo(z-1,z*.9);ctx.closePath();ctx.fill();ctx.strokeStyle='#ff672f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(z*.25,z*.5);ctx.lineTo(z*.45,z*.7);ctx.lineTo(z*.65,z*.48);ctx.stroke();}
+  else if(world==='mushroom'){ctx.fillStyle='#e8d2b8';ctx.fillRect(z*.42,z*.35,z*.2,z*.6);ctx.fillStyle='#db5f8c';ctx.beginPath();ctx.ellipse(z/2,z*.36,z*.49,z*.32,0,Math.PI,Math.PI*2);ctx.fill();ctx.fillStyle='#fff0ef';ctx.fillRect(z*.28,z*.13,4,4);ctx.fillRect(z*.62,z*.17,4,4);}
+  else {ctx.fillStyle='#8c6ac5';ctx.beginPath();ctx.moveTo(z*.5,0);ctx.lineTo(z*.82,z*.38);ctx.lineTo(z*.7,z*.85);ctx.lineTo(z*.3,z);ctx.lineTo(z*.08,z*.52);ctx.closePath();ctx.fill();ctx.fillStyle='#d5c3ff';ctx.fillRect(z*.3,z*.25,z*.22,4);}
+  ctx.restore();
+});
+// Moving environmental particles are tied to each biome.
+if(running&&!paused){
+  // Denser, layered weather: rain has wind-slanted streaks and tiny ground splashes;
+  // snow uses varied flakes with gentle sideways drift and twinkle.
+  const count=world==='rain'?230:world==='ice'?115:world==='desert'?42:world==='forest'||world==='jungle'||world==='cherry'?38:world==='ocean'?28:20;
+  for(let i=0;i<count;i++){
+    const seed=(i*73.17+11)%W; let x,y;
+    if(world==='rain'){
+      const speed=430+(i%7)*65, drift=elapsed*(115+(i%5)*22);
+      x=((seed-drift)% (W+50)+W+50)%(W+50); y=(i*47+elapsed*speed)%(H+24)-12;
+      const alpha=.22+(i%5)*.09;
+      ctx.strokeStyle=`rgba(${150+i%4*12},${205+i%3*10},${225+i%4*7},${alpha})`;
+      ctx.lineWidth=i%5===0?2:1; ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-8-(i%3)*2,y+20+(i%4)*3);ctx.stroke();
+      if(y>H-38 && y<H-14 && i%3===0){ctx.strokeStyle='rgba(190,235,245,.38)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x-3,H-25,3+(i%4),1.3,0,0,Math.PI*2);ctx.stroke();}
+    } else if(world==='ice'){
+      const drift=Math.sin(elapsed*.7+i*1.7)*(18+i%5*5)+Math.sin(elapsed*.25+i)*12;
+      x=(seed+drift+W)%W; y=(i*59+elapsed*(28+(i%7)*13))%(H+12)-6;
+      const r=1.5+(i%5)*.65, alpha=.45+(i%4)*.13;
+      ctx.strokeStyle=`rgba(235,252,255,${alpha})`;ctx.fillStyle=`rgba(235,252,255,${alpha})`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+      if(i%4===0){ctx.beginPath();ctx.moveTo(x-r*2,y);ctx.lineTo(x+r*2,y);ctx.moveTo(x,y-r*2);ctx.lineTo(x,y+r*2);ctx.stroke();}
+    } else if(world==='desert'){
+      x=(seed+elapsed*(20+i%4*7))%W;y=(i*41+elapsed*(12+i%5*6))%H;ctx.fillStyle='rgba(242,199,125,.45)';ctx.fillRect(x,y,3,2);
+    } else if(world==='forest'||world==='jungle'){
+      x=(seed+Math.sin(elapsed+i)*32+W)%W;y=(i*47+elapsed*(22+i%4*8))%H;ctx.save();ctx.translate(x,y);ctx.rotate(elapsed*1.3+i);ctx.fillStyle=i%2?'#8fcf65':'#c7b85d';ctx.beginPath();ctx.ellipse(0,0,5,2.5,.5,0,Math.PI*2);ctx.fill();ctx.restore();
+    } else if(world==='cherry'){
+      x=(seed+Math.sin(elapsed+i)*24+W)%W;y=(i*43+elapsed*(18+i%3*7))%H;ctx.save();ctx.translate(x,y);ctx.rotate(elapsed+i);ctx.fillStyle='#ffc5dc';ctx.fillRect(-3,-2,6,4);ctx.restore();
+    } else if(world==='ocean'){
+      x=(seed+Math.sin(elapsed+i)*12+W)%W;y=H-((i*37+elapsed*(18+i%4*9))%(H-30));ctx.strokeStyle='#b8faff88';ctx.beginPath();ctx.arc(x,y,2+i%3,0,Math.PI*2);ctx.stroke();
+    } else if(world==='volcano'){
+      x=(seed+elapsed*(8+i%4*4))%W;y=H-((i*43+elapsed*(15+i%3*8))%(H-30));ctx.fillStyle=i%2?'#ffb32f99':'#ff542999';ctx.fillRect(x,y,3,4);
+    } else {x=(seed+Math.sin(elapsed+i)*20+W)%W;y=(i*59+elapsed*8)%H;ctx.fillStyle='#d7c4ff99';ctx.fillRect(x,y,2,2);}
+  }
+}
+
+if(spore){ctx.save();ctx.globalAlpha=.4*Math.min(1,spore.life);const g2=ctx.createRadialGradient(spore.x,H-50,5,spore.x,H-50,85);g2.addColorStop(0,'#ffb7e8');g2.addColorStop(1,'rgba(255,183,232,0)');ctx.fillStyle=g2;ctx.fillRect(spore.x-95,H-145,190,170);ctx.restore()}
+critters.forEach(c=>{ctx.save();ctx.translate(c.x,c.y);const f=Math.sin(c.ph);if(c.k==='bird'){ctx.strokeStyle='#1d2b36';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-8,0);ctx.quadraticCurveTo(-4,-7*f,0,0);ctx.quadraticCurveTo(4,-7*f,8,0);ctx.stroke()}else if(c.k==='fish'){ctx.scale(c.vx>0?1:-1,1);ctx.fillStyle=c.col;ctx.beginPath();ctx.ellipse(0,0,10,5,0,0,6.3);ctx.fill();ctx.beginPath();ctx.moveTo(-9,0);ctx.lineTo(-16,-5+f*2);ctx.lineTo(-16,5+f*2);ctx.fill()}else{ctx.shadowColor='#ffb3e6';ctx.shadowBlur=8;ctx.fillStyle='#ff9ed8';const w=4+Math.abs(f)*7;ctx.beginPath();ctx.ellipse(-w/2,0,w/2,6,0,0,6.3);ctx.ellipse(w/2,0,w/2,6,0,0,6.3);ctx.fill();ctx.fillStyle='#4b2a45';ctx.fillRect(-1,-5,2,10)}ctx.restore()});
+powerups.forEach(p=>{const bob=Math.sin(elapsed*5+p.x)*3;ctx.save();ctx.shadowColor=t.accent;ctx.shadowBlur=16;ctx.fillStyle='#ffffff30';ctx.beginPath();ctx.arc(p.x,p.y+bob,19,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.font='24px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(PU[p.type],p.x,p.y+bob+1);ctx.restore()});
+if(invuln>0&&Math.floor(invuln*14)%2)ctx.globalAlpha=.35;
+ctx.fillStyle='#0005';ctx.fillRect(player.x+5,player.y+player.h+4,player.w,7);const pc=(SKINS.find(k=>k.id===skin)||{}).c||t.accent;ctx.shadowColor=pc;ctx.shadowBlur=18;ctx.fillStyle=pc;ctx.fillRect(player.x,player.y,player.w,player.h);ctx.shadowBlur=0;ctx.fillStyle='#ffffff80';ctx.fillRect(player.x+3,player.y+3,player.w-6,5);ctx.fillStyle='#062033';ctx.fillRect(player.x+8,player.y+11,6,8);ctx.fillRect(player.x+22,player.y+11,6,8);ctx.fillStyle='#fff';ctx.fillRect(player.x+9,player.y+12,2,2);ctx.fillRect(player.x+23,player.y+12,2,2);
+ctx.globalAlpha=1;if(shield>0){ctx.strokeStyle=`rgba(140,240,255,${shield<2?(Math.floor(shield*6)%2?.9:.3):.8})`;ctx.lineWidth=3;ctx.shadowColor='#8cf0ff';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,34,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0}
+particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=t.accent;ctx.fillRect(p.x,p.y,5,5)});ctx.globalAlpha=1;
+if(!running&&!gameOver){ctx.fillStyle='#fff9';ctx.font='16px system-ui';ctx.textAlign='center';ctx.fillText('Choose a world, then start your run',W/2,H-55)}
+if(env.gp>.05){if(world==='desert'||world==='ice'){ctx.fillStyle=world==='desert'?`rgba(214,170,100,${.35*env.gp})`:`rgba(235,250,255,${.3*env.gp})`;ctx.fillRect(0,0,W,H)}ctx.strokeStyle=`rgba(255,255,255,${.3*env.gp})`;ctx.lineWidth=2;for(let i=0;i<24;i++){const x=((i*97+elapsed*420*env.dir)%W+W)%W,y=(i*61)%H;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-env.dir*50*env.gp,y);ctx.stroke()}}
+if(jfade>0){ctx.fillStyle=`rgba(0,0,0,${Math.min(1,jfade)})`;ctx.fillRect(0,0,W,H)}
+if(env.flash>0){ctx.fillStyle=`rgba(230,240,255,${Math.min(.6,env.flash*1.7)})`;ctx.fillRect(0,0,W,H)}
+warns.forEach(w=>{ctx.fillStyle=`rgba(255,70,70,${.12+.18*Math.abs(Math.sin(w.life*10))})`;ctx.fillRect(w.x,0,w.w,H);ctx.fillStyle='#ff6b6b';ctx.fillRect(w.x+w.w/2-3,10,6,18)});
+texts.forEach(x=>{ctx.globalAlpha=Math.max(0,x.life);ctx.fillStyle=x.col;ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText(x.txt,x.x,x.y)});ctx.globalAlpha=1;
+if(paused){ctx.fillStyle='#04101acc';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 40px system-ui';ctx.textAlign='center';ctx.fillText('PAUSED',W/2,H/2)}
+ctx.restore()}
+// UI bindings
+document.querySelectorAll('[data-world]').forEach(b=>b.addEventListener('click',()=>setWorld(b.dataset.world)));document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('startBtn').addEventListener('click',()=>{initAudio();resetGame()});$('restartBtn').addEventListener('click',()=>{initAudio();resetGame()});$('pauseBtn').addEventListener('click',togglePause);
+$('musicVol').addEventListener('input',e=>{const v=Number(e.target.value)/100;$('musicVal').textContent=e.target.value+'%';if(musicBus&&audioCtx)musicBus.gain.setTargetAtTime(v,audioCtx.currentTime,.08)});
+$('sfxVol').addEventListener('input',e=>{const v=Number(e.target.value)/100;$('sfxVal').textContent=e.target.value+'%';if(sfxBus&&audioCtx)sfxBus.gain.setTargetAtTime(v,audioCtx.currentTime,.04);if(currentAmbienceAudio)currentAmbienceAudio.volume=Math.min(1,v*.55)});
+$('musicBtn').addEventListener('click',()=>{initAudio();musicOn=!musicOn;$('musicBtn').textContent='♫ Music: '+(musicOn?'On':'Off');if(musicOn){if(running&&!paused)startMusic()}else stopMusic()});$('sfxBtn').addEventListener('click',()=>{sfxOn=!sfxOn;$('sfxBtn').textContent='🔊 SFX: '+(sfxOn?'On':'Off');if(sfxOn&&running&&!paused)startBiomeAmbience();else stopBiomeAmbience()});
+const nk=k=>k.length===1?k.toLowerCase():k;
+window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[nk(e.key)]=true;if(e.key===' '&&!e.repeat){togglePause()}if(['Shift','z','x','Z','X'].includes(e.key)&&!e.repeat)doDash(); });window.addEventListener('keyup',e=>{keys[nk(e.key)]=false});window.addEventListener('blur',()=>{keys={}});
+let touchStartX=null;canvas.addEventListener('touchstart',e=>{if(e.touches.length){touchStartX=e.touches[0].clientX;}},{passive:true});canvas.addEventListener('touchmove',e=>{if(touchStartX===null||!running)return;const dx=e.touches[0].clientX-touchStartX;if(Math.abs(dx)>12){keys.ArrowLeft=dx<0;keys.ArrowRight=dx>0;}},{passive:true});canvas.addEventListener('touchend',()=>{touchStartX=null;keys.ArrowLeft=false;keys.ArrowRight=false;},{passive:true});
+function holdButton(id,key){const el=$(id);const down=e=>{e.preventDefault();keys[key]=true};const up=e=>{e.preventDefault();keys[key]=false};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up)}holdButton('leftBtn','ArrowLeft');holdButton('rightBtn','ArrowRight');
+let layerAudio=null;const BL='soul_serenity_sounds-distant-breeze-241047.mp3',biomeLayer={forest:'freesound_community-forest-ambience-26617.mp3',rain:'enternalrainsounds-calm-rain-ambience-421001.mp3',savanna:BL,desert:BL,ice:BL,cherry:BL};
+const layerVol=()=>Math.max(0,Math.min(1,Number($('sfxVol').value)/100*.22)),_start=startBiomeAmbience,_stop=stopBiomeAmbience;
+function dropLayer(){if(layerAudio){fadeOutAmbience(layerAudio);layerAudio=null}}
+stopBiomeAmbience=function(){_stop();dropLayer()};
+startBiomeAmbience=function(){_start();dropLayer();if(!sfxOn||!biomeLayer[world])return;const a=new Audio('sounds/'+biomeLayer[world]);a.loop=true;a.volume=layerVol();layerAudio=a;const p=a.play();if(p&&p.catch)p.catch(()=>{})};
+$('sfxVol').addEventListener('input',()=>{if(layerAudio)layerAudio.volume=layerVol()});
+$('dashBtn').onclick=doDash;$('dashBtn2').addEventListener('pointerdown',e=>{e.preventDefault();doDash()});$('rmBtn').onclick=()=>{rm=!rm;$('rmBtn').textContent='🌀 Screen shake: '+(rm?'Off':'On')};renderSkins();$('rmBtn').textContent='🌀 Screen shake: '+(rm?'Off':'On');
+{const st=document.querySelector('.stage'),rf=st.requestFullscreen||st.webkitRequestFullscreen;if(!rf)$('fsBtn').style.display='none';else $('fsBtn').onclick=()=>{const d=document.fullscreenElement||document.webkitFullscreenElement;if(d)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else rf.call(st)}}
+document.addEventListener('visibilitychange',()=>{keys={};if(document.hidden&&running&&!paused)togglePause()});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+loadBest();draw(0);
+</script>
+</body>
+</html>
