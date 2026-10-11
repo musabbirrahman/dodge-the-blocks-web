@@ -2,7 +2,7 @@
 
 A browser game: dodge falling hazards across 11 biomes, each with its own weather, mechanics, wildlife and recorded ambience.
 
-**Play:** `https://YOUR-USERNAME.github.io/dodge-the-blocks/` (after enabling GitHub Pages)
+**Play:** `https://musabbirrahman.github.io/dodge-the-blocks/` (after enabling GitHub Pages)
 
 ## Features
 - 11 biomes: slippery Ice, windy Forest, Desert sandstorms, Ocean currents, Rainforest lightning, Volcano geysers, low-gravity Galaxy, Mushroom spore clouds, Jungle coconut drops, Savanna stampedes, Cherry Blossom
