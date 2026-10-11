@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
 <title>Dodge the Blocks — Living Worlds</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07121f">
@@ -16,12 +16,47 @@ header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-
 @media(max-width:900px){main{grid-template-columns:1fr 1fr}.gamewrap{grid-column:1/-1;grid-row:1}.left{grid-column:1}.right{grid-column:2}.stage canvas{height:55vh}}
 @media(max-width:560px){main{grid-template-columns:1fr;padding:8px;gap:10px}.gamewrap,.left,.right{grid-column:1}.left{grid-row:2}.right{grid-row:3}.stage canvas{min-height:300px;height:54svh;max-height:520px;touch-action:none}.panel{padding:10px}.worlds{max-height:none}.mobile-controls button{width:min(30vw,120px);height:58px;font-size:25px;border-radius:15px}header{padding:14px}.mobile-controls{display:flex}.worlds{grid-template-columns:1fr 1fr}.world{padding:8px}}
 body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}button{touch-action:manipulation}.stage:fullscreen{background:#000}.stage:fullscreen canvas,.stage:-webkit-full-screen canvas{height:100vh;width:100%}
+
+html,body{overscroll-behavior:none}
+body,button,.hud,.stage,.panel,.status,.overlay,canvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.touch-ui,.backBtn,.menuBtn,.hudbtns{display:none}
+.stage.pfs{position:fixed;inset:0;z-index:1000;height:100dvh!important;border-radius:0;border:0}
+body.pfs-lock{overflow:hidden}
+@media (pointer:coarse),(max-width:820px){
+header,#dashBtn,#fsBtn,.kbhint{display:none!important}
+main{display:flex!important;flex-direction:column;padding:0;gap:0}
+.gamewrap{order:-1;display:block}.left,.right{margin:10px}
+.stage{display:flex;flex-direction:column;height:calc(100dvh - 70px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:300px;border-radius:0;border-width:0 0 2px}
+.stage .hud{display:flex;position:static;margin:0;padding:5px 6px;gap:4px;flex-wrap:nowrap;justify-content:flex-start;overflow:hidden;background:#06111ecc;flex:none;align-items:center}
+.stage.pfs .hud{padding-top:calc(5px + env(safe-area-inset-top))}
+.stage .hud .pill{padding:3px 8px;font-size:11px;white-space:nowrap;flex:none}
+.stage .hud .pill:nth-child(3),.stage .hud #worldName{display:none}
+.hudbtns{display:flex;gap:6px;margin-left:auto;flex:none}.hudbtns button{width:40px;height:32px;padding:0;font-size:16px}
+.stage canvas{flex:1 1 auto;min-height:0;height:auto;max-height:none;width:100%;object-position:50% 0;touch-action:none}
+.touch-ui{display:block;position:relative;flex:none;height:118px;z-index:4}
+.touch-ui button{pointer-events:auto;position:absolute;bottom:max(16px,env(safe-area-inset-bottom));width:84px;height:84px;border-radius:50%;font-size:30px;padding:0;background:#0c2a40d9;border:2px solid #42e8f5aa;touch-action:none}
+.touch-ui button:active{background:#1d5f7aee;transform:scale(.94)}
+#leftBtn{left:calc(14px + env(safe-area-inset-left))}#rightBtn{left:calc(110px + env(safe-area-inset-left))}
+#dashBtn2{right:calc(16px + env(safe-area-inset-right));width:100px;height:100px;font-size:36px;background:#1a6b78d9}
+.backBtn,.menuBtn{display:block;width:100%;margin:10px 0 0}.backBtn{margin:0 0 10px}
+.status{padding:8px 12px;margin:0}
+.controls{margin:6px 8px}
+}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
+.stage{height:100dvh;min-height:0}
+.touch-ui button{width:72px;height:72px;font-size:26px}#rightBtn{left:calc(96px + env(safe-area-inset-left))}#dashBtn2{width:84px;height:84px}
+.overlay{padding:8px}.overlay h2{font-size:22px;margin:0}.overlay p{font-size:12px;margin:4px 0}
+}
+@media (orientation:landscape) and (pointer:coarse){.touch-ui{position:absolute;inset:0;height:auto;pointer-events:none}}
+.rotate-hint{display:none}
+@keyframes rot{0%,25%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
+@media (pointer:coarse) and (orientation:portrait){.rotate-hint{display:flex;gap:8px;align-items:center;justify-content:center;font-size:12px;color:var(--gold);margin:12px 0 0}.rotate-hint .ph{display:inline-block;font-size:20px;animation:rot 2.6s ease-in-out infinite}}
 </style>
 </head>
 <body>
 <header><div class="brand"><div class="logo">🟩</div><div><h1>Dodge the Blocks</h1><p>Explore worlds · Survive · Beat your best</p></div></div><div><span class="pill">♫ Original ambient soundtrack</span></div></header>
 <main>
-<aside class="panel left"><h2>🌍 Select World</h2><div class="worlds">
+<aside class="panel left"><button class="backBtn" id="backBtn">⬆ Back to game</button><h2>🌍 Select World</h2><div class="worlds">
 <button class="world active" data-world="forest"><span>🌲</span><span>Forest<small>Wind gusts · Fireflies</small></span></button>
 <button class="world" data-world="desert"><span>🏜️</span><span>Desert<small>Sandstorms · Heat</small></span></button>
 <button class="world" data-world="ice"><span>❄️</span><span>Ice World<small>Slippery ice · Blizzards</small></span></button>
@@ -34,9 +69,9 @@ body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-i
 <button class="world" data-world="savanna"><span>🦒</span><span>Savanna<small>Acacia trees · Tall grass</small></span></button>
 <button class="world" data-world="rain"><span>🌧️</span><span>Rainforest<small>Storms · Lightning</small></span></button>
 </div><p class="info">Choose a world before starting. Each one has its own colors and atmosphere.</p></aside>
-<section class="gamewrap"><div class="hud"><span class="pill">SCORE <b id="score">0</b></span><span class="pill">BEST <b id="best">0</b></span><span class="pill">TIME <b id="time">0.0</b>s</span><span class="pill" id="worldName">🌲 Forest</span><span class="pill" id="buffs" style="display:none"></span><span class="pill">🪙 <b id="coins">0</b></span><span class="pill">🔥 x<b id="combo">1</b></span></div>
-<div class="stage"><canvas id="game" width="800" height="600" aria-label="Dodge the falling blocks game"></canvas><div class="overlay" id="overlay"><h2 id="overlayTitle">Dodge the Blocks</h2><p id="overlayText">Move left and right to avoid falling blocks. Survive as long as you can, and collect ❤️ extra lives, 🛡️ shields and ⏳ slow-motion, and listen to the calm ambient soundtrack.</p><button class="primary" id="startBtn">▶ Start Game</button><p style="font-size:12px">Keyboard: ← → or A / D · Space to pause</p></div></div>
-<div class="controls"><button id="pauseBtn">⏸ Pause</button><button id="dashBtn">⚡ Dash</button><button id="fsBtn">⛶ Fullscreen</button><button id="restartBtn">↻ Restart</button></div><div class="mobile-controls"><button id="leftBtn">◀</button><button id="rightBtn">▶</button><button id="dashBtn2">⚡</button></div><div class="status"><span>❤️ Lives: <b id="lives">3</b></span><span id="modeLabel">Mode: Classic</span><span id="message">Ready when you are.</span></div></section>
+<section class="gamewrap"><div class="hud"><span class="pill">SCORE <b id="score">0</b></span><span class="pill">BEST <b id="best">0</b></span><span class="pill">TIME <b id="time">0.0</b>s</span><span class="pill" id="worldName">🌲 Forest</span><span class="pill" id="buffs" style="display:none"></span><span class="pill">🪙 <b id="coins">0</b></span><span class="pill">🔥 x<b id="combo">1</b></span><span class="hudbtns"><button id="pauseBtn2" aria-label="Pause">⏸</button><button id="fsBtn2" aria-label="Fullscreen">⛶</button></span></div>
+<div class="stage"><canvas id="game" width="800" height="600" aria-label="Dodge the falling blocks game"></canvas><div class="touch-ui"><button id="leftBtn" aria-label="Move left">◀</button><button id="rightBtn" aria-label="Move right">▶</button><button id="dashBtn2" aria-label="Dash">⚡</button></div><div class="overlay" id="overlay"><h2 id="overlayTitle">Dodge the Blocks</h2><p id="overlayText">Move left and right to avoid falling blocks. Survive as long as you can, and collect ❤️ extra lives, 🛡️ shields and ⏳ slow-motion, and listen to the calm ambient soundtrack.</p><button class="primary" id="startBtn">▶ Start Game</button><button id="menuBtn" class="menuBtn">🌍 Worlds &amp; Modes</button><p class="rotate-hint"><span class="ph">📱</span> Tip: rotate your phone for a wider view</p><p class="kbhint" style="font-size:12px">Keyboard: ← → or A / D · Space to pause</p></div></div>
+<div class="controls"><button id="pauseBtn">⏸ Pause</button><button id="dashBtn">⚡ Dash</button><button id="fsBtn">⛶ Fullscreen</button><button id="restartBtn">↻ Restart</button></div><div class="status"><span>❤️ Lives: <b id="lives">3</b></span><span id="modeLabel">Mode: Classic</span><span id="message">Ready when you are.</span></div></section>
 <aside class="panel right"><h2>⚡ Game Mode</h2><div class="mode"><button class="active" data-mode="classic">🎯 Classic<small class="info">Balanced speed</small></button><button data-mode="rush">⚡ Speed Rush<small class="info">Faster obstacles · double score</small></button><button data-mode="zen">🪷 Zen<small class="info">No collisions · relax</small></button><button data-mode="hardcore">💀 Hardcore<small class="info">One life · faster · double score</small></button><button data-mode="attack">⏱ Score Attack<small class="info">60 seconds · go big</small></button><button data-mode="journey">🧭 Journey<small class="info">New world every 45s</small></button></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h2>♫ Audio Settings</h2><div class="settings"><div class="setting"><label for="musicVol">Background music <span id="musicVal">35%</span></label><input id="musicVol" type="range" min="0" max="100" value="35"><small>Gentle piano-like notes and warm ambient tones</small></div><button id="musicBtn">♫ Music: On</button><div class="setting"><label for="sfxVol">Sound effects <span id="sfxVal">65%</span></label><input id="sfxVol" type="range" min="0" max="100" value="65"><small>Movement, collisions, and high-score chimes</small></div><button id="sfxBtn">🔊 SFX: On</button></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h2>🎨 Cube Skins</h2><div class="mode" id="skins"></div><p class="info" id="achInfo"></p><button id="rmBtn">🌀 Screen shake: On</button><p class="info">Keys: ← → move · Shift dash · Space pause · Gamepad supported</p><p class="info">Audio starts after you press Start, because browsers require a user interaction before playing sound.</p></aside>
 </main><footer>Every run is a new adventure · Real recorded ambience matched to each biome.</footer>
 <script>
@@ -172,9 +207,9 @@ function sfxBest(){if(!audioCtx||!sfxOn)return;[523.25,659.25,783.99,1046.5].for
 function sfxStart(){if(!audioCtx||!sfxOn)return;soundTone(392,.12,'triangle',.07,sfxBus);setTimeout(()=>soundTone(587.33,.18,'triangle',.07,sfxBus),90)}
 
 // ---------- GAME ----------
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),LW=800,LH=600,DPR=Math.min(2,window.devicePixelRatio||1);canvas.width=LW*DPR;canvas.height=LH*DPR;
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),DPR=Math.min(2,window.devicePixelRatio||1);let LW=800,LH=600;canvas.width=LW*DPR;canvas.height=LH*DPR;
 const $=id=>document.getElementById(id);let world='forest',mode='classic',running=false,paused=false,gameOver=false,last=0,spawnClock=0,score=0,elapsed=0,lives=3,obstacles=[],particles=[],keys={},bestScore=0,moveCooldown=0;
-const player={x:400,y:520,w:36,h:36,speed:470,vx:0};
+const player={x:400,y:LH-80,w:36,h:36,speed:470,vx:0};
 let powerups=[],shield=0,slow=0,invuln=0,shake=0,puClock=0,rafId=0,texts=[],warns=[],combo=0,nextBoss=30,bossLive=0,dashCD=0,dashT=0,dashDir=1,lastDir=1,rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches),runCoins=0,coinClock=0,padPrev=false,padStart=false;
 let coins=+LS.get('dtb-coins')||0,owned=JSON.parse(LS.get('dtb-owned')||'["biome"]'),skin=LS.get('dtb-skin')||'biome',achs=JSON.parse(LS.get('dtb-achs')||'[]');
 const themes={
@@ -193,9 +228,13 @@ rain:{name:'Rainforest',emoji:'🌧️',sky1:'#152d42',sky2:'#496e78',ground:'#2
 function bestKey(){return 'dtb-best-'+(mode==='journey'?'any':world)+'-'+mode}function loadBest(){bestScore=Number(LS.get(bestKey())||0);$('best').textContent=bestScore}
 function setWorld(w){if(running)return;world=w;document.querySelectorAll('[data-world]').forEach(b=>b.classList.toggle('active',b.dataset.world===w));$('worldName').textContent=themes[w].emoji+' '+themes[w].name;loadBest();draw(0)}
 function setMode(m){if(running)return;mode=m;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));$('modeLabel').textContent='Mode: '+({classic:'Classic',rush:'Speed Rush',zen:'Zen',hardcore:'Hardcore',attack:'Score Attack',journey:'Journey'}[m]);loadBest()}
-function resetGame(){score=0;elapsed=0;lives=mode==='hardcore'?1:3;obstacles=[];particles=[];keys={};spore=null;powerups=[];critters=[];cTimer=1;jt=0;jstate=0;jfade=0;player.vx=0;Object.assign(env,{wind:0,gp:0,dur:0,next:6,lt:8,flash:0,gy:5});warns=[];texts=[];combo=0;nextBoss=30;bossLive=0;dashCD=0;dashT=0;runCoins=0;coinClock=0;shield=0;slow=0;invuln=0;shake=0;puClock=0;$('pauseBtn').textContent='⏸ Pause';spawnClock=0;player.x=LW/2-player.w/2;gameOver=false;paused=false;running=true;$('overlay').classList.add('hidden');$('score').textContent='0';$('time').textContent='0.0';$('lives').textContent=lives;$('message').textContent='Stay alert!';last=performance.now();sfxStart();startBiomeAmbience();if(musicOn)startMusic();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}
+let ft=0;
+function fit(force){if(!force&&running&&!paused)return;const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return;const asp=r.width/r.height;let w=800,h=600;
+if(asp<.95&&matchMedia('(pointer:coarse),(max-width:820px)').matches){w=600;h=Math.max(760,Math.min(1100,Math.round(600/asp)))}
+if(w===LW&&h===LH)return;const rx=player.x/Math.max(1,LW-player.w);LW=w;LH=h;canvas.width=LW*DPR;canvas.height=LH*DPR;player.y=LH-80;player.x=rx*(LW-player.w);obstacles=[];powerups=[];warns=[];critters=[];spore=null;draw(0)}
+function resetGame(){fit(true);player.y=LH-80;score=0;elapsed=0;lives=mode==='hardcore'?1:3;obstacles=[];particles=[];keys={};spore=null;powerups=[];critters=[];cTimer=1;jt=0;jstate=0;jfade=0;player.vx=0;Object.assign(env,{wind:0,gp:0,dur:0,next:6,lt:8,flash:0,gy:5});warns=[];texts=[];combo=0;nextBoss=30;bossLive=0;dashCD=0;dashT=0;runCoins=0;coinClock=0;shield=0;slow=0;invuln=0;shake=0;puClock=0;$('pauseBtn').textContent='⏸ Pause';spawnClock=0;player.x=LW/2-player.w/2;gameOver=false;paused=false;running=true;$('overlay').classList.add('hidden');$('score').textContent='0';$('time').textContent='0.0';$('lives').textContent=lives;$('message').textContent='Stay alert!';last=performance.now();sfxStart();startBiomeAmbience();if(musicOn)startMusic();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}
 function endGame(){running=false;save();renderSkins();gameOver=true;stopMusic();stopBiomeAmbience();$('overlayTitle').textContent=mode==='zen'?'Lovely run!':mode==='attack'?"Time's up!":'Game over!';$('overlayText').textContent=`Score: ${score}. You survived ${elapsed.toFixed(1)} seconds in ${themes[world].name}. Try another run to beat your best!`;$('startBtn').textContent='↻ Play Again';$('overlay').classList.remove('hidden');$('message').textContent='Run finished.'}
-function togglePause(){if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';$('message').textContent=paused?'Paused':'Keep moving!';if(currentAmbienceAudio){if(paused)currentAmbienceAudio.pause();else currentAmbienceAudio.play().catch(()=>{})}if(layerAudio){if(paused)layerAudio.pause();else layerAudio.play().catch(()=>{})}if(paused){stopMusic();draw(0)}else{if(musicOn)startMusic();last=performance.now();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}}
+function togglePause(){if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';$('pauseBtn2').textContent=paused?'▶':'⏸';$('message').textContent=paused?'Paused':'Keep moving!';if(currentAmbienceAudio){if(paused)currentAmbienceAudio.pause();else currentAmbienceAudio.play().catch(()=>{})}if(layerAudio){if(paused)layerAudio.pause();else layerAudio.play().catch(()=>{})}if(paused){stopMusic();draw(0)}else{if(musicOn)startMusic();last=performance.now();cancelAnimationFrame(rafId);rafId=requestAnimationFrame(loop)}}
 function spawnObstacle(){const size=25+Math.random()*27;obstacles.push({x:10+Math.random()*(LW-size-20),y:-size,size,speed:(135+Math.random()*95+elapsed*2)*({rush:1.65,hardcore:1.3,attack:1.25}[mode]||1),icon:themes[world].obstacles[Math.floor(Math.random()*themes[world].obstacles.length)],hue:Math.random(),spin:(Math.random()-.5)*2,zig:Math.random()<Math.min(.3,elapsed/200)})}
 function burst(x,y,n,life=.5){for(let j=0;j<n;j++)particles.push({x,y,vx:(Math.random()-.5)*240,vy:(Math.random()-.7)*220,life})}
 const PU={heart:'❤️',shield:'🛡️',slow:'⏳',coin:'🪙'};
@@ -210,7 +249,7 @@ function ach(id){if(achs.includes(id))return;achs.push(id);save();renderSkins();
 function startBoss(){const wall=Math.random()<.5,cols=13,w=LW/cols;let cs=[];if(wall){const g=Math.floor(Math.random()*(cols-2));for(let c=0;c<cols;c++)if(c!==g&&c!==g+1)cs.push(c)}else for(let k=0;k<7;k++)cs.push(Math.floor(Math.random()*cols));[...new Set(cs)].forEach(c=>warns.push({x:c*w,w,life:1.4,wall}));$('message').textContent=wall?'⚠ Wall incoming — find the gap!':'⚠ Meteor shower!';pop(LW/2,90,wall?'⚠ WALL!':'☄ METEORS!','#ff6b6b');bossLive=4}
 function doDash(){if(!running||paused||dashCD>0)return;dashDir=lastDir;dashT=.18;dashCD=2;invuln=Math.max(invuln,.3);sfxMove()}
 function padDir(){const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(Boolean);if(!gp)return 0;const a=gp.buttons[0]&&gp.buttons[0].pressed;if(a&&!padPrev)doDash();padPrev=a;const st=gp.buttons[9]&&gp.buttons[9].pressed;if(st&&!padStart)togglePause();padStart=st;let d=gp.axes[0]||0;if(Math.abs(d)<.2)d=0;if(gp.buttons[14]&&gp.buttons[14].pressed)d=-1;if(gp.buttons[15]&&gp.buttons[15].pressed)d=1;return d}
-let spore=null,critters=[],cTimer=0,jt=0,jstate=0,jfade=0;
+let dragTarget=null,spore=null,critters=[],cTimer=0,jt=0,jstate=0,jfade=0;
 const BIRD=['forest','jungle','cherry','savanna','desert'],BFLY=['forest','jungle','cherry','mushroom','savanna'];
 function spawnCritter(){const W=LW,H=LH;let k=null;if(world==='ocean')k='fish';else{const o=[];if(BIRD.includes(world))o.push('bird');if(BFLY.includes(world))o.push('fly');if(o.length)k=o[Math.floor(Math.random()*o.length)]}if(!k)return;const d=Math.random()<.5?-1:1;
 if(k==='fly')critters.push({k,x:40+Math.random()*(W-80),y:-10,vx:(Math.random()-.5)*30,vy:0,ph:Math.random()*6});
@@ -244,7 +283,7 @@ for(let i=warns.length-1;i>=0;i--){const w=warns[i];w.life-=dt;if(w.life<=0){con
 for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.y-=40*dt;t.life-=dt;if(t.life<=0)texts.splice(i,1)}
 coinClock+=dt;if(coinClock>2.2+Math.random()*2){coinClock=0;spawnPowerup('coin')}
 if(mode!=='zen'){puClock+=dt;if(puClock>9+Math.random()*4){puClock=0;spawnPowerup()}}
-moveCooldown=Math.max(0,moveCooldown-dt);let dir=padDir();if(keys.ArrowLeft||keys.a||keys.A)dir--;if(keys.ArrowRight||keys.d||keys.D)dir++;if(dir)lastDir=dir>0?1:-1;{const k=world==='ice'?10:30;player.vx+=(dir*player.speed*(env.slowZone?.55:1)-player.vx)*Math.min(1,k*dt);player.x+=(dashT>0?dashDir*1000:player.vx+env.wind)*dt}if(dashT>0)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:0,vy:0,life:.25});player.x=Math.max(0,Math.min(LW-player.w,player.x));if(dir&&moveCooldown<=0){sfxMove();moveCooldown=.22}spawnClock+=dt;const interval=Math.max(.32,(mode==='rush'?.52:mode==='attack'?.6:mode==='hardcore'?.75:.95)-elapsed*.005);if(spawnClock>interval){spawnClock=0;spawnObstacle();if(mode==='rush'&&Math.random()<.35)spawnObstacle()}
+moveCooldown=Math.max(0,moveCooldown-dt);let dir=padDir();if(dragTarget!==null){const e=dragTarget-(player.x+player.w/2);dir=Math.abs(e)<6?0:Math.max(-1,Math.min(1,e/30))}if(keys.ArrowLeft||keys.a||keys.A)dir--;if(keys.ArrowRight||keys.d||keys.D)dir++;if(dir)lastDir=dir>0?1:-1;{const k=world==='ice'?10:30;player.vx+=(dir*player.speed*(env.slowZone?.55:1)-player.vx)*Math.min(1,k*dt);player.x+=(dashT>0?dashDir*1000:player.vx+env.wind)*dt}if(dashT>0)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:0,vy:0,life:.25});player.x=Math.max(0,Math.min(LW-player.w,player.x));if(dir&&moveCooldown<=0){sfxMove();moveCooldown=.22}spawnClock+=dt;const interval=(LW<LH?1.3:1)*Math.max(.32,(mode==='rush'?.52:mode==='attack'?.6:mode==='hardcore'?.75:.95)-elapsed*.005);if(spawnClock>interval){spawnClock=0;spawnObstacle();if(mode==='rush'&&Math.random()<.35)spawnObstacle()}
 for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=o.speed*dt*sf;if(o.zig)o.x=Math.max(0,Math.min(LW-o.size,o.x+Math.sin(elapsed*3+o.hue*6)*70*dt));if(o.y>LH){obstacles.splice(i,1);const near=Math.abs(o.x+o.size/2-(player.x+player.w/2))<o.size/2+player.w/2+10;const nm=near&&mode!=='zen';if(nm){combo++;if(combo>=10)ach('c10');pop(o.x+o.size/2,LH-90,'NEAR x'+cm(),'#ffd166')}score+=(mm()+(nm?1:0))*cm();$('score').textContent=score;if(score>=50)ach('s50');if(score>=150)ach('s150');if(score>0&&score%10===0)sfxPoint();if(score>bestScore){bestScore=score;LS.set(bestKey(),bestScore);$('best').textContent=bestScore;if(score%10===0)sfxBest()}continue}if(mode!=='zen'&&rectHit(player,o)){obstacles.splice(i,1);if(shield>0){shield=0;invuln=.8;shake=.15;sfxPoint();burst(player.x+player.w/2,player.y+player.h/2,10);$('message').textContent='Shield absorbed it!';continue}if(invuln>0)continue;invuln=1.1;shake=.3;critters.forEach(c=>{if(c.k!=='fly'){c.vx*=4;c.vy=-120}});combo=0;if(navigator.vibrate)navigator.vibrate(80);lives--;$('lives').textContent=lives;sfxHit();for(let j=0;j<14;j++)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:(Math.random()-.5)*240,vy:(Math.random()-.7)*220,life:.5});if(lives<=0){endGame();return}}}
 for(let i=powerups.length-1;i>=0;i--){const p=powerups[i];p.y+=95*dt*sf;if(p.y>LH+30){powerups.splice(i,1);continue}
 if(rectHit(player,{x:p.x-p.size/2,y:p.y-p.size/2,size:p.size})){powerups.splice(i,1);sfxPoint();burst(p.x,p.y,12,.6);
@@ -412,7 +451,7 @@ $('sfxVol').addEventListener('input',e=>{const v=Number(e.target.value)/100;$('s
 $('musicBtn').addEventListener('click',()=>{initAudio();musicOn=!musicOn;$('musicBtn').textContent='♫ Music: '+(musicOn?'On':'Off');if(musicOn){if(running&&!paused)startMusic()}else stopMusic()});$('sfxBtn').addEventListener('click',()=>{sfxOn=!sfxOn;$('sfxBtn').textContent='🔊 SFX: '+(sfxOn?'On':'Off');if(sfxOn&&running&&!paused)startBiomeAmbience();else stopBiomeAmbience()});
 const nk=k=>k.length===1?k.toLowerCase():k;
 window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[nk(e.key)]=true;if(e.key===' '&&!e.repeat){togglePause()}if(['Shift','z','x','Z','X'].includes(e.key)&&!e.repeat)doDash(); });window.addEventListener('keyup',e=>{keys[nk(e.key)]=false});window.addEventListener('blur',()=>{keys={}});
-let touchStartX=null;canvas.addEventListener('touchstart',e=>{if(e.touches.length){touchStartX=e.touches[0].clientX;}},{passive:true});canvas.addEventListener('touchmove',e=>{if(touchStartX===null||!running)return;const dx=e.touches[0].clientX-touchStartX;if(Math.abs(dx)>12){keys.ArrowLeft=dx<0;keys.ArrowRight=dx>0;}},{passive:true});canvas.addEventListener('touchend',()=>{touchStartX=null;keys.ArrowLeft=false;keys.ArrowRight=false;},{passive:true});
+let touchStartX=null;canvas.addEventListener('touchstart',e=>{if(e.touches.length){/* drag handled by pointer events */}},{passive:true});canvas.addEventListener('touchmove',e=>{if(touchStartX===null||!running)return;const dx=e.touches[0].clientX-touchStartX;if(Math.abs(dx)>12){keys.ArrowLeft=dx<0;keys.ArrowRight=dx>0;}},{passive:true});canvas.addEventListener('touchend',()=>{touchStartX=null;keys.ArrowLeft=false;keys.ArrowRight=false;},{passive:true});
 function holdButton(id,key){const el=$(id);const down=e=>{e.preventDefault();keys[key]=true};const up=e=>{e.preventDefault();keys[key]=false};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up)}holdButton('leftBtn','ArrowLeft');holdButton('rightBtn','ArrowRight');
 let layerAudio=null;const BL='soul_serenity_sounds-distant-breeze-241047.mp3',biomeLayer={forest:'freesound_community-forest-ambience-26617.mp3',rain:'enternalrainsounds-calm-rain-ambience-421001.mp3',savanna:BL,desert:BL,ice:BL,cherry:BL};
 const layerVol=()=>Math.max(0,Math.min(1,Number($('sfxVol').value)/100*.22)),_start=startBiomeAmbience,_stop=stopBiomeAmbience;
@@ -421,10 +460,21 @@ stopBiomeAmbience=function(){_stop();dropLayer()};
 startBiomeAmbience=function(){_start();dropLayer();if(!sfxOn||!biomeLayer[world])return;const a=new Audio('sounds/'+biomeLayer[world]);a.loop=true;a.volume=layerVol();layerAudio=a;const p=a.play();if(p&&p.catch)p.catch(()=>{})};
 $('sfxVol').addEventListener('input',()=>{if(layerAudio)layerAudio.volume=layerVol()});
 $('dashBtn').onclick=doDash;$('dashBtn2').addEventListener('pointerdown',e=>{e.preventDefault();doDash()});$('rmBtn').onclick=()=>{rm=!rm;$('rmBtn').textContent='🌀 Screen shake: '+(rm?'Off':'On')};renderSkins();$('rmBtn').textContent='🌀 Screen shake: '+(rm?'Off':'On');
-{const st=document.querySelector('.stage'),rf=st.requestFullscreen||st.webkitRequestFullscreen;if(!rf)$('fsBtn').style.display='none';else $('fsBtn').onclick=()=>{const d=document.fullscreenElement||document.webkitFullscreenElement;if(d)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else rf.call(st)}}
+{const st=document.querySelector('.stage'),wrap=document.querySelector('.gamewrap'),hud=wrap.querySelector('.hud'),rf=st.requestFullscreen||st.webkitRequestFullscreen,mq=matchMedia('(pointer:coarse),(max-width:820px)');
+function toggleFS(){const on=st.classList.toggle('pfs');document.body.classList.toggle('pfs-lock',on);$('fsBtn2').textContent=on?'⤡':'⛶';setTimeout(()=>fit(),350);try{if(on&&rf){const p=rf.call(st);if(p&&p.catch)p.catch(()=>{})}else if(!on&&(document.fullscreenElement||document.webkitFullscreenElement))(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}}
+$('fsBtn').onclick=$('fsBtn2').onclick=toggleFS;$('pauseBtn2').onclick=togglePause;
+const place=()=>{if(mq.matches)st.prepend(hud);else wrap.insertBefore(hud,st)};place();if(mq.addEventListener)mq.addEventListener('change',place);else mq.addListener(place);
+$('menuBtn').onclick=()=>{st.classList.remove('pfs');document.body.classList.remove('pfs-lock');document.querySelector('.left').scrollIntoView({behavior:'smooth'})};$('backBtn').onclick=()=>st.scrollIntoView({behavior:'smooth'});
+const dragAt=e=>{const r=canvas.getBoundingClientRect(),sc=Math.min(r.width/LW,r.height/LH),l=r.left+(r.width-LW*sc)/2;dragTarget=Math.max(0,Math.min(LW,(e.clientX-l)/sc))};
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;dragAt(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}});
+canvas.addEventListener('pointermove',e=>{if(dragTarget!==null&&e.pointerType!=='mouse')dragAt(e)});
+['pointerup','pointercancel'].forEach(t=>canvas.addEventListener(t,()=>{dragTarget=null}));
+document.addEventListener('selectstart',e=>{if(!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))e.preventDefault()});
+if(matchMedia('(pointer:coarse)').matches)document.addEventListener('contextmenu',e=>e.preventDefault())}
 document.addEventListener('visibilitychange',()=>{keys={};if(document.hidden&&running&&!paused)togglePause()});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-loadBest();draw(0);
+fit(true);loadBest();draw(0);
+['resize','orientationchange'].forEach(t=>addEventListener(t,()=>{clearTimeout(ft);ft=setTimeout(()=>fit(),200)}));
 </script>
 </body>
 </html>

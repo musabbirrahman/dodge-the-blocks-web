@@ -2,7 +2,7 @@
 
 A browser game: dodge falling hazards across 11 biomes, each with its own weather, mechanics, wildlife and recorded ambience.
 
-**Play:** `https://musabbirrahman.github.io/dodge-the-blocks-web/` 
+**Play:** `https://YOUR-USERNAME.github.io/dodge-the-blocks/` (after enabling GitHub Pages)
 
 ## Features
 - 11 biomes: slippery Ice, windy Forest, Desert sandstorms, Ocean currents, Rainforest lightning, Volcano geysers, low-gravity Galaxy, Mushroom spore clouds, Jungle coconut drops, Savanna stampedes, Cherry Blossom
@@ -45,3 +45,9 @@ Ambience recordings in `sounds/` come from Freesound / Pixabay-style sources (fi
 | freesound_community-* (6 files) | freesound_community |
 
 Game code: add your own license (e.g. MIT) as `LICENSE`.
+
+
+## Mobile
+Touch controls live inside the game area (work in fullscreen): hold ◀ ▶ or drag anywhere on the playfield to move, ⚡ to dash, ⏸ / ⛶ in the top bar. Long-press text selection and context menus are disabled. Worlds, modes and audio are below the game (use "Worlds & Modes").
+
+Portrait phones now get a taller playfield (more reaction time) with controls in a band under it; landscape keeps the wide view. A rotate hint shows on the start screen in portrait.
